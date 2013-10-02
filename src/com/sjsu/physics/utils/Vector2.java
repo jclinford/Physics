@@ -86,7 +86,6 @@ public class Vector2
 	/* sum this vector with a vector that is scaled by variable scale */
 	public Vector2 addToScaled(Vector2 vec, float scale)
 	{
-//		System.out.println("Initial X, Y: " + x + ", " + y + "   vec:  " + vec.x() + ", " + vec.y() + "  scale: " + scale);
 		return new Vector2(x + (vec.x() * scale), y + (vec.y() * scale));
 	}
 
@@ -122,11 +121,16 @@ public class Vector2
 	/* returns the distance from this point to another point P */
 	public float distanceTo(Vector2 p)
 	{
-		float dist = (float) (Math.pow( (this.x() - p.x()), 2) + Math.pow( (this.y() - p.y()), 2));
-		return dist;
+		double dist = (Math.pow( (this.x() - p.x()), 2) + Math.pow( (this.y() - p.y()), 2));
+		return ( (float) (Math.sqrt(dist)) );
 	}
 	
-	/* return the projection of this vector onto line segment AB */
+	/** return the projection of this vector onto line segment AB
+	 * AKA the closest point on the edge AB to this vector
+	 * @param a Vertex 1
+	 * @param b Vertex 2
+	 * @return The vector projection onto edge AB
+	 */
 	public Vector2 projectPointOntoEdge(Vector2 a, Vector2 b)
 	{
 		// vector from edge to point
@@ -157,28 +161,8 @@ public class Vector2
 	/* Return the minimum distance between line segment AB and this point */
 	public float minimumDistanceToLine(Vector2 a, Vector2 b)
 	{
-		Vector2 BA = b.subtractBy(a);
-		float length = BA.magnitude();
-		
-		// a == b in this case
-		if (length == 0) 
-			return this.distanceTo(a);
-		
-		Vector2 PA = this.subtractBy(a);
-		float t = (PA.dot(BA)) / length;
-		
-		// beyond the 'a' end of the segment
-		if (t < 0 )
-			return this.distanceTo(a);
-		
-		// beyond the 'b' end of segment
-		else if (t > 1.0)
-			return this.distanceTo(a);
-		
-		// otherwise projection falls on segment
-		Vector2 projection = BA.multiplyBy(t).addTo(a);
-		
-		return this.distanceTo(projection);
+		Vector2 closestPoint = this.projectPointOntoEdge(a, b);
+		return this.distanceTo(closestPoint);
 	}
 	
 	/* Returns the projection of this vector onto vector B (Ab = A dot Bnormalized) */
@@ -195,11 +179,11 @@ public class Vector2
 	/* returns the rotation of this vector around it's origin by rad radians */
 	public Vector2 rotate(float d)
 	{
-		float cs = (float) Math.cos(d);
-		float sn = (float) Math.sin(d);
+		double cs = Math.cos(d);
+		double sn = Math.sin(d);
 		
-		float px = this.x() * cs - this.y() * sn;
-		float py = this.x() * sn + this.y() * cs;
+		float px = (float) (this.x() * cs - this.y() * sn);
+		float py = (float) (this.x() * sn + this.y() * cs);
 		
 		return new Vector2(px, py);
 	}

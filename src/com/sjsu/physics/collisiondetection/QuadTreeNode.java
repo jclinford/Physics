@@ -1,11 +1,15 @@
 package com.sjsu.physics.collisiondetection;
 
 import java.awt.Rectangle;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
+import com.sjsu.physics.shapes.PolyBody;
 import com.sjsu.physics.shapes.RigidBody;
+import com.sjsu.physics.shapes.RigidBody.BodyType;
 import com.sjsu.physics.utils.Globals;
+import com.sjsu.physics.utils.Vector2;
 
 //TODO currently just a point-quadtree.. need to account for geometries and check if the rigidBody is overlapping two or more quadrants.. if so add it to the parent node
 //Continue physics book on pg 257 (280/481)
@@ -84,28 +88,7 @@ public class QuadTreeNode
 		children[Globals.BOTTOM_RIGHT] = new QuadTreeNode().init(this, bottomRightBounds, depth + 1);
 		children[Globals.BOTTOM_LEFT] = new QuadTreeNode().init(this, bottomLeftBounds, depth + 1);
 	}
-	
-	
-	
-	
-	
-	/* Return our children / subnodes */
-	public QuadTreeNode[] children()
-	{
-		return children;
-	}
-	
-	/* Return the bounds that this Node occupies */
-	public Rectangle bounds()
-	{
-		return bounds;
-	}
-	
-	/* Return only myBodies (objects that reside fully in the bounds of the node) */
-	public ArrayList<RigidBody> bodies()
-	{
-		return myBodies;
-	}
+
 	
 	
 	/* Test whether a rigidBody is fully contained inside this node's bounds
@@ -113,10 +96,34 @@ public class QuadTreeNode
 	 * TODO can I be more efficient here??*/
 	public boolean contains(RigidBody body)
 	{	
-		Rectangle2D.Float boundingRect = new Rectangle2D.Float(body.center().x() - body.bounds().halfWidth(),
-				body.center().y() - body.bounds().halfHeight(), body.bounds().halfWidth() * 2, body.bounds().halfHeight() * 2);
-		if (bounds.contains(boundingRect))
+		// check used for circles
+		if (body.type() == BodyType.CIRCLE)
+		{
+			Vector2 center = body.center();
+			float radius = body.bounds().radius();
+			
+			if ( bounds.getMaxX() > (center.x() + radius) &&
+					bounds.getMinX() < (center.x() - radius) &&
+					bounds.getMaxY() > (center.y() + radius) &&
+					bounds.getMinY() < (center.y() - radius))
+				return true;
+			return false;
+		}
+		
+		// check used for polygons
+		if (body.type() == BodyType.POLYGON)
+		{
+			// if any vertex is outside of the bounds then we are not contained
+			PolyBody poly = (PolyBody) body;
+			ArrayList<Vector2> vertices = poly.verticesWorld();
+			
+			for (int i = 0; i < vertices.size(); i++)
+			{
+				if (!bounds.contains(vertices.get(i).x(), vertices.get(i).y()))
+					return false;
+			}
 			return true;
+		}
 		
 		return false;
 	}
@@ -132,8 +139,17 @@ public class QuadTreeNode
 		}
 		
 		// if we are at the base node already, return this node's children and this node's borderBodies
-//		System.out.println("Retrieving, have total nodes: " + myBodies.size() + "   have total border: " + borderBodies.size());
 		return myBodies;
+	}
+	
+	/** Retrieve all potential contacts (the node the body is in and all parents 
+	 * 
+	 * @param body The body that we are looking for contacts for
+	 * @param potentialContacts An arraylist passed in that we will add our bodies to if we are a parent
+	 */
+	public void retrieveContacts(ArrayList<RigidBody> potentialContacts, RigidBody body)
+	{
+		int index = findIndex(body);
 	}
 	
 	/* Insert a body to our node. If it's full split our node */
@@ -168,7 +184,7 @@ public class QuadTreeNode
 		}
 	}
 	
-	/* Finds the index that a body belongs to based on center point */
+	/** Finds the index that a body belongs to based on center point */
 	private int findIndex(RigidBody body)
 	{
 		int index;
@@ -200,10 +216,10 @@ public class QuadTreeNode
 		if (children[0] == null || children[1] == null || children[2] == null || children[3] == null)
 			return true;
 		
-		// If we have children allocated, but all of our children don't have bodies then we are a leaf
-		if (children[0].bodies().size() < 1 && children[1].bodies().size() < 1 && 
-				children[2].bodies().size() < 1 && children[3].bodies().size() < 1)
-			return true;
+//		// If we have children allocated, but all of our children don't have bodies then we are a leaf
+//		if (children[0].bodies().size() < 1 && children[1].bodies().size() < 1 && 
+//				children[2].bodies().size() < 1 && children[3].bodies().size() < 1)
+//			return true;
 		
 		return false;
 	}
@@ -219,5 +235,27 @@ public class QuadTreeNode
 			if (children[i] != null)
 				children[i].clearObjects();
 		}
+	}
+	
+	
+	
+	
+	
+	/* Return our children / subnodes */
+	public QuadTreeNode[] children()
+	{
+		return children;
+	}
+	
+	/* Return the bounds that this Node occupies */
+	public Rectangle bounds()
+	{
+		return bounds;
+	}
+	
+	/* Return only myBodies (objects that reside fully in the bounds of the node) */
+	public ArrayList<RigidBody> bodies()
+	{
+		return myBodies;
 	}
 }

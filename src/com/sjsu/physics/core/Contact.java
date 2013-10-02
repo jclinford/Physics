@@ -14,15 +14,11 @@ public class Contact
 {
 	private RigidBody a;
 	private RigidBody b;
-	private float time;							// time of contact
 	private Vector2 contactPoint;
 	private Vector2 contactNormal;
 	private float restitution;					// Coefficient of Restitution (1 = perfect elastic, 0 = inelastic)
 	private float penetration;					// How much the two objects are penetrating one another
-	private Vector2 particleMovement[];			// tracks how much the particle moved due to penetration
-	private Vector2 relativeContactPosition[];	// position of the contact point from each body's center
-	private Vector2 impulse;					// the estimated change in v that we will see after this contact is resolved
-	private Vector2 contactVelocity;			// Velocity relative to the contact point
+	
 	
 	public Contact(RigidBody bodyA, RigidBody bodyB, float r, float p)
 	{
@@ -30,154 +26,13 @@ public class Contact
 		b = bodyB;
 		restitution = r;
 		penetration = p;
-		particleMovement = new Vector2[2];
-		relativeContactPosition = new Vector2[2];
-		impulse = Globals.ZERO_VECTOR;
 	}
 	
 	/** Resolve the contact (angular and linear components) */
 	public void resolve(float dt)
 	{		
-		// update internal data before doing calculations
-//		updateInternals(dt);
 		resolveVelocity(dt);
 		resolvePenetration(dt);
-//		resolveVelocity();
-//		resolveAngular();
-	}
-	
-	/** Resolve the linear portion of the impulse calculated in updateInternals */
-	private void resolveVelocity()
-	{
-		Vector2 impulseWorld = impulse.addTo(contactPoint);
-		float impulsiveTorqueA = relativeContactPosition[0].cross(impulseWorld);
-		float impulsiveTorqueB = relativeContactPosition[1].cross(impulseWorld);
-		
-		a.addVelocity(impulseWorld.multiplyBy(a.inverseMass()));
-		a.addAngularVelocity(contactNormal.dot(a.inverseMoment()) * impulsiveTorqueA);
-		
-		b.addVelocity(impulseWorld.multiplyBy(b.inverseMass()));
-		b.addAngularVelocity(contactNormal.dot(b.inverseMoment()) * impulsiveTorqueB);
-	}
-	
-	/** Resolve the angular component of the impulse calculated in updateInternals */
-	private void resolveAngular()
-	{
-		// impulsive torque = impulse cross relativeContactPos
-		float impulsiveTorqueA = - relativeContactPosition[0].cross(impulse);
-		float impulsiveTorqueB = relativeContactPosition[1].cross(impulse);
-		
-		if (impulsiveTorqueA < Globals.EPSILON && impulsiveTorqueA > -Globals.EPSILON)
-			impulsiveTorqueA = 0;
-		if (impulsiveTorqueB < Globals.EPSILON && impulsiveTorqueB > -Globals.EPSILON)
-			impulsiveTorqueB = 0;
-				
-		a.addAngularVelocity(contactNormal.dot(a.inverseMoment()) * impulsiveTorqueA);
-		b.addAngularVelocity(contactNormal.dot(b.inverseMoment()) * impulsiveTorqueB);
-	}
-	
-	/** Calculate the velocity local to the contact point */
-	private Vector2 calculateLocalVelocity(RigidBody body, float dt)
-	{
-		Vector2 relPos;
-		if (a.equals(body))
-		{
-			relPos = relativeContactPosition[0];
-		}
-		else
-		{
-			relPos = relativeContactPosition[1];
-		}
-		
-		// TODO probably goin wrong here...
-		Vector2 velocity = relPos.multiplyBy(body.angularVelocity()).addTo(body.velocity());
-		float vMag = velocity.magnitude();
-		
-		// turn into contact coords
-		Vector2 localVelocity = contactNormal.multiplyBy(vMag);
-		
-		// calc amount of velocity that is due to forces w/out reactions
-		Vector2 accVelocity = body.acceleration().multiplyBy(dt);
-		float accVMag = accVelocity.magnitude();
-		// ignore x component along contact normal
-		accVelocity.set(0, accVMag * contactNormal.y());
-		
-		localVelocity = localVelocity.addTo(accVelocity);
-				
-		return localVelocity;
-	}
-	
-	/** Caulculates the desired change in velocity for this contact */
-	private float calculateDesiredDeltaV(float dt)
-	{
-		float velocityLimit = .25f;
-		float contactVAlongNorm = contactVelocity.dot(contactNormal);
-		
-		// calc accel induced velocity this frame
-		float velocityFromAccel = 0;
-		
-		velocityFromAccel += a.acceleration().multiplyBy(dt).dot(contactNormal);
-		velocityFromAccel -= b.acceleration().multiplyBy(dt).dot(contactNormal);
-		
-		// if velocity is very slow, limit restitution
-		float thisRestitution = restitution;
-		if (Math.abs(contactVAlongNorm) < velocityLimit)
-			thisRestitution = 0.0f;
-				
-		return (-contactVAlongNorm - 
-				thisRestitution * (contactVAlongNorm - velocityFromAccel));
-	}
-	
-	/** Calculate the impulse associated with this contact */
-	private void calculateImpulse(float desiredDeltaV)
-	{			
-		float deltaV = 0;
-		
-		// get vPerImpulse for rotational aspect
-		// (Center - ContactPoint) cross contactNormal
-		float deltaVA = relativeContactPosition[0].cross(contactNormal);
-		deltaVA *= a.inverseMoment().dot(contactNormal);
-		
-		// add linear component
-		deltaVA += a.inverseMass();
-		deltaV += deltaVA;
-		
-		// repeat for body b
-		float deltaVB = relativeContactPosition[1].cross(contactNormal);
-		deltaVB *= b.inverseMoment().dot(contactNormal);
-		
-		// add linear component for b
-		deltaVB += b.inverseMass();
-		deltaV += deltaVB;
-		
-		
-		// impulse without friction = desiredDeltaV / deltaV along contact normal
-		float impulseScalar = (desiredDeltaV / deltaV);
-		
-		// rotate to contact coords
-		impulse = contactNormal.multiplyBy(impulseScalar);
-		
-		System.out.println("Impulse1: " + impulse);
-	}
-	
-	/** Update internal data */
-	private void updateInternals(float dt)
-	{
-		// relative position of contact to each body [0] = a, [1] = b
-		relativeContactPosition[0] = contactPoint.subtractBy(a.center());
-		relativeContactPosition[1] = contactPoint.subtractBy(b.center());
-		
-		// relative velocity of bodies at contactPoint
-		// the x position will be the velocity along the contactPoint
-		// the y position is the "slide"
-		contactVelocity = calculateLocalVelocity(a, dt);
-		contactVelocity = contactVelocity.subtractBy(calculateLocalVelocity(b, dt));
-		
-		// calculate the desired change in velocity needed for resolution
-		float desiredDeltaV = calculateDesiredDeltaV(dt);
-		
-		// calculate the impulse
-		calculateImpulse(desiredDeltaV);
 	}
 	
 	
@@ -207,10 +62,7 @@ public class Contact
 		float j = - (1 + restitution) * velAlongNorm;
 		j = j / (a.inverseMass() + b.inverseMass());
 		Vector2 impulse = contactNormal.multiplyBy(j);
-		
-//		System.out.println("normal: " + contactNormal + "   penetration: " + penetration + "   sumIMass: " + sumInverseMass + "  velAlongNorm: " + velAlongNorm);
-//		System.out.println("Vai: " + a.velocity() + "   iMa: " + a.inverseMass() + "   Vbi: " + b.velocity() + "    iMb: " + b.inverseMass());
-		
+
 		/* Apply impulses to rigid bodies */
 		Vector2 iA = impulse.multiplyBy(a.inverseMass());
 		Vector2 iB = impulse.multiplyBy(b.inverseMass());
@@ -227,30 +79,16 @@ public class Contact
 		
 		
 		// calculate angular velocity
-//		Vector2 momentArmA = contactPoint.subtractBy(a.center());
-//		Vector2 momentArmB = contactPoint.subtractBy(b.center());
-//		float tmpA = (impulse.dot(momentArmA)) / (momentArmA.dot(momentArmA));
-//		float tmpB = (impulse.dot(momentArmB)) / (momentArmB.dot(momentArmB));
-//		Vector2 parallelCompA = momentArmA.multiplyBy(tmpA);
-//		Vector2 parallelCompB = momentArmB.multiplyBy(tmpB);
-//		Vector2 angularForceA = impulse.subtractBy(parallelCompA);
-//		Vector2 angularForceB = impulse.subtractBy(parallelCompB);
-//		Vector2 torqueA = angularForceA.multiplyBy(momentArmA.magnitude());
-//		Vector2 torqueB = angularForceB.multiplyBy(momentArmB.magnitude());
-		
-		
-		// calculate angular velocity
 		Vector2 aToContact = a.center().subtractBy(contactPoint);
 		Vector2 bToContact = b.center().subtractBy(contactPoint);
-		float torqueA = aToContact.x() * impulse.y() - aToContact.y() * impulse.x();
-		float torqueB = bToContact.x() * impulse.y() - bToContact.y() * impulse.x();
-		float angAccelA = torqueA * (a.inverseMoment().dot(aToContact));
-		float angAccelB = torqueB * (b.inverseMoment().dot(bToContact));
-		
 		
 		// impulsive torque = impulse cross relativeContactPos
 		float impulsiveTorqueA = aToContact.cross(impulse);
 		float impulsiveTorqueB = - bToContact.cross(impulse);
+		
+		// take into account body mass helps realism on rotation
+		impulsiveTorqueA *= (10 * a.inverseMass());
+		impulsiveTorqueB *= (10 * b.inverseMass());
 		
 		if (impulsiveTorqueA < Globals.EPSILON && impulsiveTorqueA > -Globals.EPSILON)
 			impulsiveTorqueA = 0;
@@ -259,16 +97,7 @@ public class Contact
 				
 		a.addAngularVelocity(contactNormal.cross(a.inverseMoment()) * impulsiveTorqueA);
 		b.addAngularVelocity(contactNormal.cross(b.inverseMoment()) * impulsiveTorqueB);
-		
-//		if (torqueA < Globals.SLEEP_EPSILON && torqueA > -Globals.SLEEP_EPSILON)
-//			torqueA = 0;
-//		if (torqueB < Globals.SLEEP_EPSILON && torqueA > -Globals.SLEEP_EPSILON)
-//			torqueB = 0;
-		
-//		System.out.println("TorqueA: " + torqueA + "   B: " + torqueB);
-//		a.addTorque(angAccelA);		// not really torque, angAcceleration		
-//		b.addTorque(angAccelB);
-				
+
 		// final momentum
 //		float pf = (a.mass() * a.velocity().magnitude()) + (b.mass() * b.velocity().magnitude());
 //		System.out.println("Vaf: " + Va + "   Vbf: " + Vb + "    initial momentum: " + pi + "   final momentum: " + pf);
@@ -283,7 +112,7 @@ public class Contact
 		/* If no penetration, just return */
 		if (penetration <= 0.0f)
 		{
-			System.out.println("No penetration, not resolvin");
+//			System.out.println("No penetration, not resolvin");
 			return;
 		}
 				
@@ -298,18 +127,9 @@ public class Contact
 		
 		/* Distance needed to move per invese mass */
 		Vector2 distPerIMass = contactNormal.multiplyBy(penetration / sumInverseMass);
-		
-		/* Set positions of bodies to correct for penetration ; newCenter = center + (distPerIMass * inverseMass) */
-		particleMovement[0] = distPerIMass.multiplyBy(a.inverseMass());
-		particleMovement[1] = distPerIMass.multiplyBy(b.inverseMass());
-		
-//		System.out.println("normal: " + contactNormal.x() + ", " + contactNormal.y() + "   penetration: " + penetration + 
-//				"   sumIMass: " + sumInverseMass + "   distA: " + particleMovement[0] + "  distB: " + particleMovement[1]);
-		
-		a.setCenter(particleMovement[0].addTo(a.center()));
-		b.setCenter(particleMovement[1].addTo(b.center()));
-		
-//		System.out.println("A :" + a + "   B: " + b);
+				
+		a.setCenter(distPerIMass.multiplyBy(a.inverseMass()).addTo(a.center()));
+		b.setCenter(distPerIMass.multiplyBy(b.inverseMass()).addTo(b.center()));
 	}
 	
 	/** Calculate the velocity at which the two objects are moving apart */
@@ -322,21 +142,6 @@ public class Contact
 		return Vrelative.dot(contactNormal);
 	}
 	
-	/** Calculate the velocity along the perpindicular of the contact normal */
-	private float velocityAlongPerp()
-	{
-		// relative velocity
-		Vector2 Vrelative = b.velocity().subtractBy(a.velocity());
-		
-		return Vrelative.dot(contactNormal.rotate90());
-	}
-	
-	
-	
-	public void setTime(float t)
-	{
-		time = t;
-	}
 	
 	public void setRestitution(float r)
 	{
@@ -356,27 +161,6 @@ public class Contact
 	public void setContactPoint(Vector2 p)
 	{
 		contactPoint = p;
-	}
-	
-	public void setParticleMovement(RigidBody body, Vector2 move)
-	{
-		if (body.equals(a))
-			particleMovement[0] = move;
-		else
-			particleMovement[1] = move;
-	}
-	
-	public Vector2 particleMovement(RigidBody body)
-	{
-		if (body.equals(a))
-			return particleMovement[0];
-		else
-			return particleMovement[1];
-	}
-	
-	public float time()
-	{
-		return time;
 	}
 	
 	public Vector2 normal()
@@ -417,3 +201,162 @@ public class Contact
 		return s;
 	}
 }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	// Old code doesn't really work well, but more exact
+///** Calculate the velocity along the perpindicular of the contact normal */
+//private float velocityAlongPerp()
+//{
+//	// relative velocity
+//	Vector2 Vrelative = b.velocity().subtractBy(a.velocity());
+//	
+//	return Vrelative.dot(contactNormal.rotate90());
+//}
+//	
+//	/** Resolve the linear portion of the impulse calculated in updateInternals */
+//	private void resolveVelocity()
+//	{
+//		Vector2 impulseWorld = impulse.addTo(contactPoint);
+//		float impulsiveTorqueA = relativeContactPosition[0].cross(impulseWorld);
+//		float impulsiveTorqueB = relativeContactPosition[1].cross(impulseWorld);
+//		
+//		a.addVelocity(impulseWorld.multiplyBy(a.inverseMass()));
+//		a.addAngularVelocity(contactNormal.dot(a.inverseMoment()) * impulsiveTorqueA);
+//		
+//		b.addVelocity(impulseWorld.multiplyBy(b.inverseMass()));
+//		b.addAngularVelocity(contactNormal.dot(b.inverseMoment()) * impulsiveTorqueB);
+//	}
+//	
+//	/** Resolve the angular component of the impulse calculated in updateInternals */
+//	private void resolveAngular()
+//	{
+//		// impulsive torque = impulse cross relativeContactPos
+//		float impulsiveTorqueA = - relativeContactPosition[0].cross(impulse);
+//		float impulsiveTorqueB = relativeContactPosition[1].cross(impulse);
+//		
+//		if (impulsiveTorqueA < Globals.EPSILON && impulsiveTorqueA > -Globals.EPSILON)
+//			impulsiveTorqueA = 0;
+//		if (impulsiveTorqueB < Globals.EPSILON && impulsiveTorqueB > -Globals.EPSILON)
+//			impulsiveTorqueB = 0;
+//				
+//		a.addAngularVelocity(contactNormal.dot(a.inverseMoment()) * impulsiveTorqueA);
+//		b.addAngularVelocity(contactNormal.dot(b.inverseMoment()) * impulsiveTorqueB);
+//	}
+//	
+//	/** Calculate the velocity local to the contact point */
+//	private Vector2 calculateLocalVelocity(RigidBody body, float dt)
+//	{
+//		Vector2 relPos;
+//		if (a.equals(body))
+//		{
+//			relPos = relativeContactPosition[0];
+//		}
+//		else
+//		{
+//			relPos = relativeContactPosition[1];
+//		}
+//		
+//		// TODO probably goin wrong here...
+//		Vector2 velocity = relPos.multiplyBy(body.angularVelocity()).addTo(body.velocity());
+//		float vMag = velocity.magnitude();
+//		
+//		// turn into contact coords
+//		Vector2 localVelocity = contactNormal.multiplyBy(vMag);
+//		
+//		// calc amount of velocity that is due to forces w/out reactions
+//		Vector2 accVelocity = body.acceleration().multiplyBy(dt);
+//		float accVMag = accVelocity.magnitude();
+//		// ignore x component along contact normal
+//		accVelocity.set(0, accVMag * contactNormal.y());
+//		
+//		localVelocity = localVelocity.addTo(accVelocity);
+//				
+//		return localVelocity;
+//	}
+//	
+//	/** Caulculates the desired change in velocity for this contact */
+//	private float calculateDesiredDeltaV(float dt)
+//	{
+//		float velocityLimit = .25f;
+//		float contactVAlongNorm = contactVelocity.dot(contactNormal);
+//		
+//		// calc accel induced velocity this frame
+//		float velocityFromAccel = 0;
+//		
+//		velocityFromAccel += a.acceleration().multiplyBy(dt).dot(contactNormal);
+//		velocityFromAccel -= b.acceleration().multiplyBy(dt).dot(contactNormal);
+//		
+//		// if velocity is very slow, limit restitution
+//		float thisRestitution = restitution;
+//		if (Math.abs(contactVAlongNorm) < velocityLimit)
+//			thisRestitution = 0.0f;
+//				
+//		return (-contactVAlongNorm - 
+//				thisRestitution * (contactVAlongNorm - velocityFromAccel));
+//	}
+//	
+//	/** Calculate the impulse associated with this contact */
+//	private void calculateImpulse(float desiredDeltaV)
+//	{			
+//		float deltaV = 0;
+//		
+//		// get vPerImpulse for rotational aspect
+//		// (Center - ContactPoint) cross contactNormal
+//		float deltaVA = relativeContactPosition[0].cross(contactNormal);
+//		deltaVA *= a.inverseMoment().dot(contactNormal);
+//		
+//		// add linear component
+//		deltaVA += a.inverseMass();
+//		deltaV += deltaVA;
+//		
+//		// repeat for body b
+//		float deltaVB = relativeContactPosition[1].cross(contactNormal);
+//		deltaVB *= b.inverseMoment().dot(contactNormal);
+//		
+//		// add linear component for b
+//		deltaVB += b.inverseMass();
+//		deltaV += deltaVB;
+//		
+//		
+//		// impulse without friction = desiredDeltaV / deltaV along contact normal
+//		float impulseScalar = (desiredDeltaV / deltaV);
+//		
+//		// rotate to contact coords
+//		impulse = contactNormal.multiplyBy(impulseScalar);
+//		
+//		System.out.println("Impulse1: " + impulse);
+//	}
+//	
+//	/** Update internal data */
+//	private void updateInternals(float dt)
+//	{
+//		// relative position of contact to each body [0] = a, [1] = b
+//		relativeContactPosition[0] = contactPoint.subtractBy(a.center());
+//		relativeContactPosition[1] = contactPoint.subtractBy(b.center());
+//		
+//		// relative velocity of bodies at contactPoint
+//		// the x position will be the velocity along the contactPoint
+//		// the y position is the "slide"
+//		contactVelocity = calculateLocalVelocity(a, dt);
+//		contactVelocity = contactVelocity.subtractBy(calculateLocalVelocity(b, dt));
+//		
+//		// calculate the desired change in velocity needed for resolution
+//		float desiredDeltaV = calculateDesiredDeltaV(dt);
+//		
+//		// calculate the impulse
+//		calculateImpulse(desiredDeltaV);
+//	}

@@ -238,9 +238,6 @@ public class PolyBody extends RigidBody
 		Rectangle p = this.rotatePolygon(orientation()).getBounds();
 		bounds.setHalfHeight(p.height / 2);
 		bounds.setHalfWidth(p.width / 2);
-		
-		// update moment of inertia TODO
-//		calculateMoment();
 	}
 	
 	@Override

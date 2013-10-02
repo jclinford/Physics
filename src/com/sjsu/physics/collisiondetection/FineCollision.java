@@ -101,28 +101,27 @@ public class FineCollision
 	/* Collision detection for circle and circle */
 	private static void circleCircle(Circle a, Circle b, ArrayList<Contact> contacts)
 	{
-		Vector2 AB = a.center().subtractBy(b.center());
-		float radiiSquare = a.bounds().radius() * a.bounds().radius() + 
-				b.bounds().radius() * b.bounds().radius();
+		float radiusA = a.bounds().radius();
+		float radiusB = b.bounds().radius();
+		Vector2 AB = b.center().subtractBy(a.center());
+		float radiiSquare = radiusA * radiusA + radiusB * radiusB;
 
 		// if ||A-B||^2 < (r1 + r2) ^2 then we have a circle collision
 		// (ie if the distance between two circles is smaller than their radii)
 		if (AB.magnitudeSquared() < radiiSquare)
 		{
 			// Find penetration ( = RadiusA + RadiusB - |A - B| )
-			float penetration = a.bounds().radius() + b.bounds().radius() - AB.magnitude();
+			float penetration = radiusA + radiusB - AB.magnitude();
 
 			// Find normal (normal = A - B / (magnitude (A-B) )
 			Vector2 normal = AB.normalize();
 
-			// Find contact point ( = CenterA + (A-B) * .5 )
-			Vector2 contactPoint = AB.multiplyBy(0.5f).addTo(a.center());
+			// Find contact point ( = CenterA + radiusA * normal )
+			Vector2 contactPoint = normal.multiplyBy(radiusA).addTo(a.center());
 
 			Contact contact = new Contact(a, b, Globals.DEFAULT_RESTITUTION, penetration);
 			contact.setNormal(normal);
 			contact.setContactPoint(contactPoint);
-			//contact.setFriction(Globals.DEFAULT_FRICTION);
-
 			contacts.add(contact);
 		}
 	}
@@ -154,14 +153,18 @@ public class FineCollision
 				
 				// contactPoint will be the center circle - the normal * radius
 				contactPoint = centerC.subtractBy(contactNormal.multiplyBy(radiusC));
-				
+								
 				// clamp it to the edge
 				contactPoint = contactPoint.projectPointOntoEdge(v0, v1);
-				
-				// penetration is the difference in distance from center to contactPoint and radius
-				penetration = centerC.subtractBy(contactPoint).magnitude() - radiusC;
 			}
 		}
+		
+		// penetration is the difference in distance from center to contactPoint and radius
+		penetration = (centerC.subtractBy(contactPoint).magnitudeSquared()) - (radiusC * radiusC);
+		
+		// if we are not penetrating we can bail early
+		if (penetration > 0)
+			return;
 
 		if (contactPoint == null || contactNormal == null)
 		{
@@ -169,11 +172,10 @@ public class FineCollision
 			return;
 		}
 
-		Contact contact = new Contact(circle, polygon, Globals.DEFAULT_RESTITUTION, -penetration);
+		Contact contact = new Contact(circle, polygon, Globals.DEFAULT_RESTITUTION, penetration);
 		contact.setNormal(contactNormal);
 		contact.setContactPoint(contactPoint);
 		contacts.add(contact);
-		System.out.println(contact);
 		return;
 	}
 	
@@ -353,13 +355,9 @@ public class FineCollision
 		supportVertices.add(new SupportVertex(body.state().TransformBy(body.vertices().get(closestI)), closestI));
 		if (secondClosestI != -1)
 			supportVertices.add(new SupportVertex(body.state().TransformBy(body.vertices().get(secondClosestI)), secondClosestI));
-		
-//	System.out.println("SupportV1:  " + supportVertices.get(0));
-//	if (supportVertices.size() > 1)
-//		System.out.println("supportV2: " + supportVertices.get(1));
-		
 		return supportVertices;
 	}
+}	
 	
 	
 	
@@ -371,14 +369,13 @@ public class FineCollision
 	
 	
 	
-//	
-//	
+	
 //	/* Check if polygon a and b collide using angular casting
 //	 * Returns the time they intersect, or -1 if there is no intersection */
-//	public static Contact polygonPolygonPrior(PolyBody a, PolyBody b)
+//	public static Contact polygonPolygon(PolyBody a, PolyBody b)
 //	{
 //		// find if there is an initial contact
-//		Contact contact = polygonPolygon(a, b);
+//		Contact contact = polygonPolygonContact(a, b);
 //		if (contact == null)
 //			return null;
 //		
@@ -436,7 +433,7 @@ public class FineCollision
 //		b.state().set(realMb);
 //		return contact;
 //	}
-	
+//	
 	
 	
 	
@@ -700,4 +697,3 @@ public class FineCollision
 //		}
 //		return penetration;
 //	}
-}
