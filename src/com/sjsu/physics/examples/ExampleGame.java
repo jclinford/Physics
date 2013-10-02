@@ -111,7 +111,7 @@ public class ExampleGame
 	{
 		int centerX = Globals.MAX_GAME_WIDTH / 2;
 		int centerY = Globals.MAX_GAME_WIDTH / 2;
-		Vector2 zero = new Vector2(0, 0);
+		Vector2 zero = Globals.ZERO_VECTOR;
 
 		// horizontal walls
 		for (int i = 0; i < BOX_LENGTH * 4 + 1; i++)
@@ -154,7 +154,7 @@ public class ExampleGame
 	{
 		int centerX = Globals.MAX_GAME_WIDTH / 2;
 		int centerY = Globals.MAX_GAME_WIDTH / 2;
-		Vector2 zero = new Vector2(0, 0);
+		Vector2 zero = Globals.ZERO_VECTOR;
 
 		// horizontal walls
 		for (int i = 0; i < BOX_LENGTH + 1; i++)
@@ -228,7 +228,7 @@ public class ExampleGame
 		PolyBody b1 = new PolyBody(p1, 200, 630);
 		PolyBody b2 = new PolyBody(p2, 500, 630);
 
-		b1.setVelocity(new Vector2(0, 0));
+		b1.setVelocity(Globals.ZERO_VECTOR);
 		b2.setVelocity(new Vector2(-50, 0));
 
 		b1.setMass(40);
@@ -278,7 +278,7 @@ public class ExampleGame
 		b2.setMass(10);
 
 		Circle b3 = new Circle(new Vector2(Globals.MAX_GAME_WIDTH / 2 - 40, Globals.MAX_GAME_WIDTH / 2), Globals.DEFAULT_CIRCLE_RADIUS);
-		b3.setVelocity(new Vector2(0, 0));
+		b3.setVelocity(Globals.ZERO_VECTOR);
 		b3.setMass(25);
 
 		world.addBodyToWorld(b1);
@@ -534,7 +534,11 @@ class DrawingPanel extends JPanel
 			
 //			System.out.println(" V1: " + b.verticesWorld().get(i) + "   v2: " + b.verticesWorld().get( (i + 1) % b.numVertices()) + "   normal: " + normal);
 			Line2D.Float line = new Line2D.Float(fromx, fromy, tox, toy);
+			float radius = 5;
+			Ellipse2D.Float center = new Ellipse2D.Float(b.center().x() - radius, 
+					b.center().y() - radius, radius * 2, radius * 2);
 			g2.draw(line);
+			g2.draw(center);
 		}
 		g2.setColor(new Color(0, 0, 0));
 	}
@@ -606,8 +610,8 @@ class ClickListener implements MouseListener
 			Polygon p = new Polygon(xpoints, ypoints, 4);
 			Vector2 loc = new Vector2(centerX, centerY);
 
-			//Circle b1 = new Circle(loc, Globals.DEFAULT_CIRCLE_RADIUS);
-			PolyBody b1 = new PolyBody(p, loc);
+			Circle b1 = new Circle(loc, 10);
+			//PolyBody b1 = new PolyBody(p, loc);
 			b1.setMass(10);
 
 			Vector2 a = new Vector2(0, Globals.DEFAULT_GRAVITY);
@@ -623,26 +627,27 @@ class ClickListener implements MouseListener
 			int centerX = arg0.getX();
 			int centerY = arg0.getY();
 
-			int[] xpoints = {-10, 0, 10, 10, 0, -10};
-			int[] ypoints = {-10, -20, -10, 10, 20, 10};
+//			int[] xpoints = {-10, 0, 10, 10, 0, -10};
+//			int[] ypoints = {-10, -20, -10, 10, 20, 10};
 
-			Polygon p = new Polygon(xpoints, ypoints, 6);
-			Vector2 loc = new Vector2(centerX, centerY);
-			
-//			int[] xpoints = {-10, 10, 10, -10};
-//			int[] ypoints = {-10, -10, 10, 10};
-
-//			Polygon p = new Polygon(xpoints, ypoints, 4);
+//			Polygon p = new Polygon(xpoints, ypoints, 6);
 //			Vector2 loc = new Vector2(centerX, centerY);
+			
+			int[] xpoints = {-50, 50, 50, -50};
+			int[] ypoints = {-10, -10, 10, 10};
+
+			Polygon p = new Polygon(xpoints, ypoints, 4);
+			Vector2 loc = new Vector2(centerX, centerY);
 
 			//Circle b1 = new Circle(loc, Globals.DEFAULT_CIRCLE_RADIUS);
 			PolyBody b1 = new PolyBody(p, loc);
 			b1.setMass(10);
+			b1.rotateBy(1);
 
 			Vector2 a = new Vector2(0, Globals.DEFAULT_GRAVITY);
 			Vector2 v = new Vector2(100, 0);
-			b1.setVelocity(v);
-//			b1.setAcceleration(a);
+//			b1.setVelocity(v);
+			b1.setAcceleration(a);
 
 			System.out.println("Click added @ : <" + centerX + ", " + centerY);
 

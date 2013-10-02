@@ -4,6 +4,7 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
+import com.sjsu.physics.utils.Globals;
 import com.sjsu.physics.utils.Vector2;
 
 
@@ -250,14 +251,14 @@ public class PolyBody extends RigidBody
 		
 		if (inverseMass() == 0)
 		{
-			inverseMomentOfInertia = new Vector2(0, 0);
+			inverseMomentOfInertia = Globals.ZERO_VECTOR;
 			return;
 		}
 		
 		/* Moment of inertia for a box = ( bh^3 ) / 12 */
 		float width = bounds.halfWidth() * 2;
 		float height = bounds.halfHeight() * 2;
-		inverseMomentOfInertia.set(120 / (width * height * height * height), 120 / (height * width * width * width));
+		inverseMomentOfInertia.set(12 / (width * height * height * height), 12 / (height * width * width * width));
 	}
 	
 	@Override

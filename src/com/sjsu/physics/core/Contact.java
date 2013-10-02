@@ -32,18 +32,18 @@ public class Contact
 		penetration = p;
 		particleMovement = new Vector2[2];
 		relativeContactPosition = new Vector2[2];
-		impulse = new Vector2(0, 0);
+		impulse = Globals.ZERO_VECTOR;
 	}
 	
 	/** Resolve the contact (angular and linear components) */
 	public void resolve(float dt)
 	{		
 		// update internal data before doing calculations
-		updateInternals(dt);
+//		updateInternals(dt);
+		resolveVelocity(dt);
 		resolvePenetration(dt);
-		resolveVelocity();
+//		resolveVelocity();
 //		resolveAngular();
-//		resolveVelocity(dt);
 	}
 	
 	/** Resolve the linear portion of the impulse calculated in updateInternals */
@@ -218,9 +218,9 @@ public class Contact
 		Vector2 Vb = b.velocity().addTo(iB);
 		
 		if (Va.magnitudeSquared() < Globals.SLEEP_EPSILON)
-			Va = new Vector2(0, 0);
+			Va = Globals.ZERO_VECTOR;
 		if (Vb.magnitudeSquared() < Globals.SLEEP_EPSILON)
-			Vb = new Vector2(0, 0);
+			Vb = Globals.ZERO_VECTOR;
 		
 		a.setVelocity(Va);
 		b.setVelocity(Vb);
@@ -240,12 +240,25 @@ public class Contact
 		
 		
 		// calculate angular velocity
-		Vector2 aToContact = contactPoint.subtractBy(a.center());
-		Vector2 bToContact = contactPoint.subtractBy(b.center());
+		Vector2 aToContact = a.center().subtractBy(contactPoint);
+		Vector2 bToContact = b.center().subtractBy(contactPoint);
 		float torqueA = aToContact.x() * impulse.y() - aToContact.y() * impulse.x();
 		float torqueB = bToContact.x() * impulse.y() - bToContact.y() * impulse.x();
 		float angAccelA = torqueA * (a.inverseMoment().dot(aToContact));
 		float angAccelB = torqueB * (b.inverseMoment().dot(bToContact));
+		
+		
+		// impulsive torque = impulse cross relativeContactPos
+		float impulsiveTorqueA = aToContact.cross(impulse);
+		float impulsiveTorqueB = - bToContact.cross(impulse);
+		
+		if (impulsiveTorqueA < Globals.EPSILON && impulsiveTorqueA > -Globals.EPSILON)
+			impulsiveTorqueA = 0;
+		if (impulsiveTorqueB < Globals.EPSILON && impulsiveTorqueB > -Globals.EPSILON)
+			impulsiveTorqueB = 0;
+				
+		a.addAngularVelocity(contactNormal.cross(a.inverseMoment()) * impulsiveTorqueA);
+		b.addAngularVelocity(contactNormal.cross(b.inverseMoment()) * impulsiveTorqueB);
 		
 //		if (torqueA < Globals.SLEEP_EPSILON && torqueA > -Globals.SLEEP_EPSILON)
 //			torqueA = 0;
@@ -394,5 +407,13 @@ public class Contact
 	public float penetration()
 	{
 		return penetration;
+	}
+	
+	
+	@Override
+	public String toString()
+	{
+		String s = "ContactPoint: " + contactPoint + "  contactNormal: " + contactNormal + "  penetration: " + penetration;
+		return s;
 	}
 }

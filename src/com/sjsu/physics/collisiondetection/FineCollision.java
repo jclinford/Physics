@@ -32,14 +32,17 @@ public class FineCollision
 		// if both objects are infinity then we do nothing
 		if (a.inverseMass() == 0 && b.inverseMass() == 0)
 			return;
+		
+		// check if we need to swap bodies. The lowest body id is always a
+		checkForSwap(a, b);
 
 		// Circle on circle collision
 		if (a.type() == BodyType.CIRCLE && b.type() == BodyType.CIRCLE)
-			circleCircle(a, b, contacts);
+			circleCircle((Circle) a, (Circle) b, contacts);
 		else if (a.type() == BodyType.CIRCLE && b.type() == BodyType.POLYGON)
-			circlePolygon(a, b, contacts);
+			circlePolygon((Circle) a, (PolyBody) b, contacts);
 		else if (a.type() == BodyType.POLYGON && b.type() == BodyType.CIRCLE)
-			circlePolygon(a, b, contacts);
+			circlePolygon((Circle) b, (PolyBody) a, contacts);
 		else if (a.type() == BodyType.POLYGON && b.type() == BodyType.POLYGON)
 		{
 			Contact c = null;
@@ -53,6 +56,18 @@ public class FineCollision
 		}
 
 		return;
+	}
+	
+	private static void checkForSwap(RigidBody a, RigidBody b)
+	{
+		RigidBody tmpBody;
+		
+		if (b.id() < a.id())
+		{
+			tmpBody = a;
+			a = b;
+			b = tmpBody;
+		}
 	}
 	
 	private static boolean contactsContainContact(ArrayList<Contact> contacts, RigidBody a, RigidBody b)
@@ -84,11 +99,8 @@ public class FineCollision
 
 
 	/* Collision detection for circle and circle */
-	private static void circleCircle(RigidBody aR, RigidBody bR, ArrayList<Contact> contacts)
+	private static void circleCircle(Circle a, Circle b, ArrayList<Contact> contacts)
 	{
-		Circle a = (Circle) aR;
-		Circle b = (Circle) bR;
-
 		Vector2 AB = a.center().subtractBy(b.center());
 		float radiiSquare = a.bounds().radius() * a.bounds().radius() + 
 				b.bounds().radius() * b.bounds().radius();
@@ -116,127 +128,53 @@ public class FineCollision
 	}
 
 	/* Collision between a circle and a plane/edge */
-	private static void circlePolygon(RigidBody a, RigidBody b, ArrayList<Contact> contacts)
+	private static void circlePolygon(Circle circle, PolyBody polygon, ArrayList<Contact> contacts)
 	{
-		Circle circle;
-		PolyBody polygon;
-		float contactpX;
-		float contactpY;
-		float dist;
-
-
-		if (a.type() == BodyType.CIRCLE)
-		{
-			circle = (Circle) a;
-			polygon = (PolyBody) b;
-		}
-		else
-		{
-			circle = (Circle) b;
-			polygon = (PolyBody) a;
-		}
-
-
+		float penetration = 0;
+		Vector2 contactPoint = null;
+		Vector2 contactNormal = null;
+		
+		float radiusC = circle.bounds().radius();
 		Vector2 centerC = circle.center();
-		Vector2 relativeCenterP = polygon.center().subtractBy(centerC);
-
-		// Now fine the closest point in the box to the target point
-		dist = relativeCenterP.x();
-		if (dist > polygon.bounds().halfWidth()) dist = polygon.bounds().halfWidth();
-		if (dist < -polygon.bounds().halfWidth()) dist = -polygon.bounds().halfWidth();
-		contactpX = dist;
-
-		// TODO this probably isn't right
-		dist = relativeCenterP.y();
-		if (dist > polygon.bounds().halfHeight()) dist = polygon.bounds().halfHeight();
-		if (dist < -polygon.bounds().halfHeight()) dist = -polygon.bounds().halfHeight();
-		contactpY = dist;
-
-		Vector2 contactPoint = new Vector2(contactpX, contactpY);
-
-		// ensure we are indeed in contact, otherwise bail early
-		Vector2 tmpVec = contactPoint.subtractBy(relativeCenterP);
-		dist = tmpVec.magnitudeSquared();
-		if (dist > circle.bounds().radius() * circle.bounds().radius())
-			return;
-
-		// Gather contact properties in world coordinates
-		Vector2 contactPointWorld = contactPoint.addTo(centerC);
-
-		float penetration = circle.bounds().radius() - (float) Math.sqrt(dist);
-		Vector2 normal = centerC.subtractBy(contactPointWorld).normalize();
-
-		Contact contact = new Contact(a, b, Globals.DEFAULT_RESTITUTION, penetration);
-		contact.setNormal(normal);
-		contact.setContactPoint(contactPointWorld);
+		ArrayList<Vector2> vertices = polygon.verticesWorld();
 		
-		contacts.add(contact);
-		return;
-	}
-
-	
-	/* Check if polygon a and b collide using angular casting
-	 * Returns the time they intersect, or -1 if there is no intersection */
-	public static Contact polygonPolygonPrior(PolyBody a, PolyBody b)
-	{
-		// find if there is an initial contact
-		Contact contact = polygonPolygon(a, b);
-		if (contact == null)
-			return null;
-		
-		int iterations = 0;		
-		float t = 0;
-		
-		// back these up
-		StateMatrix realMa = new StateMatrix(a.center(), a.orientation());
-		StateMatrix realMb = new StateMatrix(b.center(), b.orientation());
-		
-		// relative linear velocity
-		Vector2 relVel = b.velocity().subtractBy(a.velocity());
-		
-		StateMatrix mA = new StateMatrix(a.center().addTo(a.velocity().multiplyBy(t)), 
-				a.orientation() + (a.angularVelocity() * t));
-		StateMatrix mB = new StateMatrix(b.center().addTo(b.velocity().multiplyBy(t)),
-				b.orientation() + (b.angularVelocity() * t));
-		
-		// contact already generated from polygonPolygon using minkowski
-		while (contact.penetration() > Globals.ANGULAR_TOLLERANCE && 
-				iterations < Globals.MAX_ANGULAR_CAST_ITERATIONS)
+		// Now fine the closest point on the polygon's edge to the circles center
+		float minDist = Globals.INFINITY;
+		for (int i = 0; i < polygon.numVertices(); i++)
 		{
-			// intersect velocity against normal
-			float rN = relVel.dot(contact.normal());
-			float distRel = rN + a.bounds().radius() * Math.abs(a.angularVelocity()) +
-					b.bounds().radius() * Math.abs(b.angularVelocity());
-			
-			// computer conservative advancement
-			t += contact.penetration() / distRel;
-			
-			if (t < 0 || t > 1)
+			Vector2 v0 = vertices.get(i);
+			Vector2 v1 = vertices.get( ((i + 1) % polygon.numVertices()) );
+			float dist = centerC.minimumDistanceToLine(v0, v1);
+			if (Math.abs(dist) < minDist)
 			{
-				// does not connect, restore matrixes
-				a.state().set(realMa);
-				b.state().set(realMb);
-				contact = null;
-				return null;
+				minDist = dist;
+				
+				// normal will always be the face normal of the edge
+				contactNormal = polygon.normalWorld(i).normalize().invert();
+				
+				// contactPoint will be the center circle - the normal * radius
+				contactPoint = centerC.subtractBy(contactNormal.multiplyBy(radiusC));
+				
+				// clamp it to the edge
+				contactPoint = contactPoint.projectPointOntoEdge(v0, v1);
+				
+				// penetration is the difference in distance from center to contactPoint and radius
+				penetration = centerC.subtractBy(contactPoint).magnitude() - radiusC;
 			}
-			
-			// interpolate 
-			mA = new StateMatrix(a.center().addTo(a.velocity().multiplyBy(t)), 
-					a.orientation() + (a.angularVelocity() * t));
-			mB = new StateMatrix(b.center().addTo(b.velocity().multiplyBy(t)),
-					b.orientation() + (b.angularVelocity() * t));
-			a.state().set(mA);
-			b.state().set(mB);
-			
-			// get new distance
-			contact = polygonPolygon(a, b);
-			iterations++;
 		}
-		
-		// restore matrixes and return time
-		a.state().set(realMa);
-		b.state().set(realMb);
-		return contact;
+
+		if (contactPoint == null || contactNormal == null)
+		{
+			System.out.println("No contact found");
+			return;
+		}
+
+		Contact contact = new Contact(circle, polygon, Globals.DEFAULT_RESTITUTION, -penetration);
+		contact.setNormal(contactNormal);
+		contact.setContactPoint(contactPoint);
+		contacts.add(contact);
+		System.out.println(contact);
+		return;
 	}
 	
 	
@@ -258,9 +196,7 @@ public class FineCollision
 			// gather A's edge
 			Vector2 v0 = vertices.get(i);
 			Vector2 v1 = vertices.get( ((i + 1) % a.numVertices()) );
-			
-//			System.out.println("V0:  " + v0 + "  V1: " + v1 + "   normal: " + normal + "    PolygonA: " + a);
-			
+						
 			// Gather support vertices of B, most opposite of face normal
 			ArrayList<SupportVertex> supportVertices = getSupportVertices(b, normal.invert());
 			
@@ -273,31 +209,35 @@ public class FineCollision
 				float faceDist = mfp0.dot(normal);
 
 				// project onto minkowski edge
-				Vector2 projection = new Vector2(0, 0).projectPointOntoEdge(mfp0, mfp1);
-//				System.out.println("mz edge: " + mEdge + "   mfp0:" + mfp0 + "   mfp1:" + mfp1 + "projection: " + projection);
+				Vector2 projection = Globals.ZERO_VECTOR.projectPointOntoEdge(mfp0, mfp1);
 
 				// Get distance
 				dist = projection.magnitude() * Math.signum(faceDist);
-//				System.out.println("Projection:  " + projection + "   Distance: " + dist + "   facedist:" + faceDist);
 
 				// track neg
 				if (dist > leastPenetratingDist)
 				{
 					leastPenetratingDist = dist;
 					contactNormal = normal;
-					contactPoint = projection.addTo(b.center());
+					
+					// if there are two support vertices we take the midpoint
+					if (supportVertices.size() > 1)
+					{
+						contactPoint = b.verticesWorld().get(0).midPoint(b.verticesWorld().get(1));
+					}
+					else
+					{
+						int index = supportVertices.get(j).index;
+						contactPoint = b.verticesWorld().get(index);
+					}
 					
 					// clamp point to edge
 					contactPoint = contactPoint.projectPointOntoEdge(v0, v1);
-					
-//					System.out.println("ContactNormal: " + contactNormal + "   contactPoint: " + contactPoint + "   pen dist: " + 
-//							dist + "   a Vertex: " + v0 + "   b support V: " + supportVertices.get(j).vector + "    b:" + b);
 				}
 				
 				// track pos
 				if (dist > 0)
 				{
-//					System.out.println("Separating axis found: " + dist);
 					return null;
 				}
 			}
@@ -314,8 +254,6 @@ public class FineCollision
 			Vector2 v0 = vertices.get(i);
 			Vector2 v1 = vertices.get( ((i + 1) % b.numVertices()) );	// modulu in case we go over numVertices to loop back around
 
-//			System.out.println("V0:  " + v0 + "  V1: " + v1 + "   normal: " + normal + "    PolygonB: " + b);
-
 			// Gather support vertices of A, most opposite of face normal
 			ArrayList<SupportVertex> supportVertices = getSupportVertices(a, normal.invert());
 			
@@ -328,30 +266,35 @@ public class FineCollision
 				float faceDist = -mfp0.dot(normal);
 
 				// project onto minkowski edge
-				Vector2 projection = new Vector2(0, 0).projectPointOntoEdge(mfp0, mfp1);
-//				System.out.println("Minosky edge: " + mEdge + "   mfp0:" + mfp0 + "   mfp1:" + mfp1 + "projection: " + projection);
+				Vector2 projection = Globals.ZERO_VECTOR.projectPointOntoEdge(mfp0, mfp1);
 
 				// Get distance
 				dist = projection.magnitude() * Math.signum(faceDist);
-//				System.out.println("Distance: " + dist);
 
 				// track neg
 				if (dist > leastPenetratingDist)
 				{
 					leastPenetratingDist = dist;
 					contactNormal = normal.invert();
-					contactPoint = projection.addTo(a.center());
 					
+					// if there are two support vertices we take the midpoint
+					if (supportVertices.size() > 1)
+					{
+						contactPoint = b.verticesWorld().get(0).midPoint(b.verticesWorld().get(1));
+					}
+					else
+					{
+						int index = supportVertices.get(j).index;
+						contactPoint = b.verticesWorld().get(index);
+					}
+					
+					// clamp contact point to the edge
 					contactPoint = contactPoint.projectPointOntoEdge(v0, v1);
-//					System.out.println("SupportVertices: " + supportVertices.size());
-//					System.out.println("ContactNormal: " + contactNormal + "   contactPoint: " + contactPoint + "   pen dist: " + 
-//								dist + "   a Vertex: " + v0 + "   a support V: " + supportVertices.get(j).vector + "  a:" + a);
 				}
 
 				// if we get a positive we can bail early, this means there is a separating axis
 				if (dist > 0)
 				{
-//					System.out.println("Separating axis found: " + dist);
 					return null;
 				}
 			}
@@ -428,9 +371,71 @@ public class FineCollision
 	
 	
 	
-	
-	
-	
+//	
+//	
+//	/* Check if polygon a and b collide using angular casting
+//	 * Returns the time they intersect, or -1 if there is no intersection */
+//	public static Contact polygonPolygonPrior(PolyBody a, PolyBody b)
+//	{
+//		// find if there is an initial contact
+//		Contact contact = polygonPolygon(a, b);
+//		if (contact == null)
+//			return null;
+//		
+//		int iterations = 0;		
+//		float t = 0;
+//		
+//		// back these up
+//		StateMatrix realMa = new StateMatrix(a.center(), a.orientation());
+//		StateMatrix realMb = new StateMatrix(b.center(), b.orientation());
+//		
+//		// relative linear velocity
+//		Vector2 relVel = b.velocity().subtractBy(a.velocity());
+//		
+//		StateMatrix mA = new StateMatrix(a.center().addTo(a.velocity().multiplyBy(t)), 
+//				a.orientation() + (a.angularVelocity() * t));
+//		StateMatrix mB = new StateMatrix(b.center().addTo(b.velocity().multiplyBy(t)),
+//				b.orientation() + (b.angularVelocity() * t));
+//		
+//		// contact already generated from polygonPolygon using minkowski
+//		while (contact.penetration() > Globals.ANGULAR_TOLLERANCE && 
+//				iterations < Globals.MAX_ANGULAR_CAST_ITERATIONS)
+//		{
+//			// intersect velocity against normal
+//			float rN = relVel.dot(contact.normal());
+//			float distRel = rN + a.bounds().radius() * Math.abs(a.angularVelocity()) +
+//					b.bounds().radius() * Math.abs(b.angularVelocity());
+//			
+//			// computer conservative advancement
+//			t += contact.penetration() / distRel;
+//			
+//			if (t < 0 || t > 1)
+//			{
+//				// does not connect, restore matrixes
+//				a.state().set(realMa);
+//				b.state().set(realMb);
+//				contact = null;
+//				return null;
+//			}
+//			
+//			// interpolate 
+//			mA = new StateMatrix(a.center().addTo(a.velocity().multiplyBy(t)), 
+//					a.orientation() + (a.angularVelocity() * t));
+//			mB = new StateMatrix(b.center().addTo(b.velocity().multiplyBy(t)),
+//					b.orientation() + (b.angularVelocity() * t));
+//			a.state().set(mA);
+//			b.state().set(mB);
+//			
+//			// get new distance
+//			contact = polygonPolygon(a, b);
+//			iterations++;
+//		}
+//		
+//		// restore matrixes and return time
+//		a.state().set(realMa);
+//		b.state().set(realMb);
+//		return contact;
+//	}
 	
 	
 	
