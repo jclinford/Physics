@@ -225,7 +225,9 @@ public class FineCollision
 					// if there are two support vertices we take the midpoint
 					if (supportVertices.size() > 1)
 					{
-						contactPoint = b.verticesWorld().get(0).midPoint(b.verticesWorld().get(1));
+						int index0 = supportVertices.get(0).index;
+						int index1 = supportVertices.get(1).index;
+						contactPoint = b.verticesWorld().get(index0).midPoint(b.verticesWorld().get(index1));
 					}
 					else
 					{
@@ -282,12 +284,14 @@ public class FineCollision
 					// if there are two support vertices we take the midpoint
 					if (supportVertices.size() > 1)
 					{
-						contactPoint = b.verticesWorld().get(0).midPoint(b.verticesWorld().get(1));
+						int index0 = supportVertices.get(0).index;
+						int index1 = supportVertices.get(1).index;
+						contactPoint = a.verticesWorld().get(index0).midPoint(a.verticesWorld().get(index1));
 					}
 					else
 					{
 						int index = supportVertices.get(j).index;
-						contactPoint = b.verticesWorld().get(index);
+						contactPoint = a.verticesWorld().get(index);
 					}
 					
 					// clamp contact point to the edge

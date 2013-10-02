@@ -232,10 +232,10 @@ public class ExampleGame
 		Polygon p3 = new Polygon(xpoints3, ypoints3, 4);
 		Polygon p4 = new Polygon(xpoints4, ypoints4, 4);
 
-		PolyBody b1 = new PolyBody(p1, 300, Globals.MAX_GAME_HEIGHT - 400);
-		PolyBody b2 = new PolyBody(p2, 600, Globals.MAX_GAME_HEIGHT - 400);
-		PolyBody b3 = new PolyBody(p3, 550, Globals.MAX_GAME_HEIGHT - 700);
-		PolyBody b4 = new PolyBody(p4, 730, Globals.MAX_GAME_HEIGHT - 200);
+		PolyBody b1 = new PolyBody(p1, 210, Globals.MAX_GAME_HEIGHT - 400);
+		PolyBody b2 = new PolyBody(p2, 110, Globals.MAX_GAME_HEIGHT - 900);
+		PolyBody b3 = new PolyBody(p3, 550, Globals.MAX_GAME_HEIGHT - 800);
+		PolyBody b4 = new PolyBody(p4, 730, Globals.MAX_GAME_HEIGHT - 400);
 
 		b1.setMass(Globals.INFINITY);
 		b2.setMass(Globals.INFINITY);
@@ -243,6 +243,7 @@ public class ExampleGame
 		b4.setMass(Globals.INFINITY);
 		
 		b4.rotateBy(1);
+		b2.rotateBy((float) Math.PI / 2);
 
 		world.addBodyToWorld(b1);
 		world.addBodyToWorld(b2);

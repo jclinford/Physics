@@ -11,8 +11,8 @@ public class Globals
 	/* Constants for math / physics */
 	public static final int INFINITY = 2147483646;			// 'inifinity' or the max int value
 	public static final float EPSILON = .000001f;
-	public static final float DEFAULT_RESTITUTION = .5f;		// Restitution used for collisions by default
-	public static final float g = (float) 9.807 * 100;
+	public static final float DEFAULT_RESTITUTION = 1f;		// Restitution used for collisions by default
+	public static final float g = (float) 9.807 * 10;
 	public static final float DEFAULT_GRAVITY = (float) 1 * 10;
 	public static final float DISTANCE_TO_REMOVE = 3;		// at > DISTANCE_TO_REMOVE penetration we will remove the contact
 	public static final float SLEEP_EPSILON = .5f;			// minimum velocity needed to  put a body to sleep
