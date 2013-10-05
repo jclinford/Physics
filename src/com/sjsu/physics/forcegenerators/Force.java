@@ -9,7 +9,7 @@ import com.sjsu.physics.shapes.RigidBody;
  * for long periods of time that may need to be changed
  * (ie acceleration fields, drag forces, etc).
  */
-public interface Force 
+public interface Force
 {
 	void updateForce(RigidBody body, float t);
 }

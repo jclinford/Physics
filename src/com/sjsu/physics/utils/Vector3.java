@@ -4,7 +4,7 @@ package com.sjsu.physics.utils;
  * 3 dimensional vector with appropriate related functions.
  * Uses float precisision for memory conservation.
  */
-public class Vector3 
+public class Vector3
 {
 	public float x;
 	public float y;
@@ -38,7 +38,7 @@ public class Vector3
 		z = fZ;
 	}
 
-	public void set (Vector3 v)
+	public void set(Vector3 v)
 	{
 		x = v.x();
 		y = v.y();
@@ -86,7 +86,7 @@ public class Vector3
 	}
 
 	/* Turns this vector into unit-length 1 */
-	public void normalize() 
+	public void normalize()
 	{
 		float invertedMag = (float) (1.0 / magnitude());
 		x = x * invertedMag;
@@ -105,7 +105,8 @@ public class Vector3
 	/* sum this vector with a vector that is scaled by variable scale */
 	public void addScaled(Vector3 vec, float scale)
 	{
-		//		System.out.println("Initial X, Y: " + x + ", " + y + "   vec:  " + vec.x() + ", " + vec.y() + "  scale: " + scale);
+		// System.out.println("Initial X, Y: " + x + ", " + y + "   vec:  " +
+		// vec.x() + ", " + vec.y() + "  scale: " + scale);
 		x = x + vec.x() * scale;
 		y = y + vec.y() * scale;
 		z = z + vec.z() * scale;
@@ -141,7 +142,7 @@ public class Vector3
 		return (x * v.x() + y * v.y() + z * v.z());
 	}
 
-	public final static float dot(Vector3 a, Vector3 b) 
+	public final static float dot(Vector3 a, Vector3 b)
 	{
 		return a.x * b.x + a.y * b.y + a.z * b.z;
 	}
@@ -154,12 +155,12 @@ public class Vector3
 	}
 
 	/* Return the cross product between a and b */
-	public final static Vector3 cross(Vector3 a, Vector3 b) 
+	public final static Vector3 cross(Vector3 a, Vector3 b)
 	{
 		return new Vector3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
 	}
 
-	public final static void crossToOut(Vector3 a, Vector3 b, Vector3 out) 
+	public final static void crossToOut(Vector3 a, Vector3 b, Vector3 out)
 	{
 		final float tempy = a.z * b.x - a.x * b.z;
 		final float tempz = a.x * b.y - a.y * b.x;
@@ -170,11 +171,10 @@ public class Vector3
 
 	public final static void crossToOutUnsafe(Vector3 a, Vector3 b, Vector3 out)
 	{
-		assert(out != b);
-		assert(out != a);
+		assert (out != b);
+		assert (out != a);
 		out.x = a.y * b.z - a.z * b.y;
 		out.y = a.z * b.x - a.x * b.z;
 		out.z = a.x * b.y - a.y * b.x;
 	}
 }
-

@@ -5,17 +5,16 @@ import java.io.Serializable;
 /**
  * A 2-by-2 matrix. Stored in column-major order.
  */
-public class Matrix22 implements Serializable 
+public class Matrix22 implements Serializable
 {
 	private static final long SERIAL_VERSION_UID = 2L;
 
 	private Vector2 ex;
 	private Vector2 ey;
 
-
 	/** Convert the matrix to printable format. */
 	@Override
-	public String toString() 
+	public String toString()
 	{
 		String s = "";
 		s += "[" + ex.x() + "," + ey.x() + "]\n";
@@ -26,7 +25,7 @@ public class Matrix22 implements Serializable
 	/**
 	 * Construct zero matrix. Note: this is NOT an identity matrix!
 	 */
-	public Matrix22() 
+	public Matrix22()
 	{
 		ex = new Vector2();
 		ey = new Vector2();
@@ -35,10 +34,12 @@ public class Matrix22 implements Serializable
 	/**
 	 * Create a matrix with given vectors as columns.
 	 * 
-	 * @param c1 Column 1 of matrix
-	 * @param c2 Column 2 of matrix
+	 * @param c1
+	 *            Column 1 of matrix
+	 * @param c2
+	 *            Column 2 of matrix
 	 */
-	public Matrix22(final Vector2 c1, final Vector2 c2) 
+	public Matrix22(final Vector2 c1, final Vector2 c2)
 	{
 		ex = c1.getCopy();
 		ey = c2.getCopy();
@@ -52,7 +53,7 @@ public class Matrix22 implements Serializable
 	 * @param exy
 	 * @param col2y
 	 */
-	public Matrix22(final float exx, final float col2x, final float exy, final float col2y) 
+	public Matrix22(final float exx, final float col2x, final float exy, final float col2y)
 	{
 		ex = new Vector2(exx, exy);
 		ey = new Vector2(col2x, col2y);
@@ -61,7 +62,8 @@ public class Matrix22 implements Serializable
 	/**
 	 * Set as a copy of another matrix.
 	 * 
-	 * @param m Matrix to copy
+	 * @param m
+	 *            Matrix to copy
 	 */
 	public final Matrix22 set(final Matrix22 m)
 	{
@@ -70,7 +72,7 @@ public class Matrix22 implements Serializable
 		return this;
 	}
 
-	public final Matrix22 set(final float exx, final float col2x, final float exy, final float col2y) 
+	public final Matrix22 set(final float exx, final float col2x, final float exy, final float col2y)
 	{
 		ex.set(exx, exy);
 		ey.set(col2x, col2y);
@@ -80,7 +82,7 @@ public class Matrix22 implements Serializable
 	/**
 	 * Return a clone of this matrix
 	 */
-	public final Matrix22 copy() 
+	public final Matrix22 copy()
 	{
 		return new Matrix22(ex, ey);
 	}
@@ -88,7 +90,8 @@ public class Matrix22 implements Serializable
 	/**
 	 * Set as a matrix representing a rotation.
 	 * 
-	 * @param angle Rotation (in radians) that matrix represents.
+	 * @param angle
+	 *            Rotation (in radians) that matrix represents.
 	 */
 	public final void set(final float angle)
 	{
@@ -100,7 +103,7 @@ public class Matrix22 implements Serializable
 	/**
 	 * Set as the identity matrix.
 	 */
-	public final void setIdentity() 
+	public final void setIdentity()
 	{
 		ex.set(1.0f, 1.0f);
 		ey.set(1.0f, 1.0f);
@@ -109,7 +112,7 @@ public class Matrix22 implements Serializable
 	/**
 	 * Set as the zero matrix.
 	 */
-	public final void setZero() 
+	public final void setZero()
 	{
 		ex.set(0f, 0f);
 		ey.set(0f, 0f);
@@ -120,7 +123,7 @@ public class Matrix22 implements Serializable
 	 * 
 	 * @return
 	 */
-	public final float getAngle() 
+	public final float getAngle()
 	{
 		return (float) Math.atan2(ex.y(), ex.x());
 	}
@@ -128,17 +131,19 @@ public class Matrix22 implements Serializable
 	/**
 	 * Set by column vectors.
 	 * 
-	 * @param c1 Column 1
-	 * @param c2 Column 2
+	 * @param c1
+	 *            Column 1
+	 * @param c2
+	 *            Column 2
 	 */
-	public final void set(final Vector2 c1, final Vector2 c2) 
+	public final void set(final Vector2 c1, final Vector2 c2)
 	{
 		ex.set(c1);
 		ey.set(c2);
 	}
 
 	/** Returns the inverted Matrix22 - does NOT invert the matrix locally! */
-	public final Matrix22 invert() 
+	public final Matrix22 invert()
 	{
 		final float a = ex.x(), b = ey.x(), c = ex.y(), d = ey.y();
 		final Matrix22 B = new Matrix22();
@@ -152,11 +157,11 @@ public class Matrix22 implements Serializable
 		return B;
 	}
 
-	public final Matrix22 invertLocal() 
+	public final Matrix22 invertLocal()
 	{
 		final float a = ex.x(), b = ey.x(), c = ex.y(), d = ey.y();
 		float det = a * d - b * c;
-		
+
 		if (det != 0)
 			det = 1.0f / det;
 
@@ -165,16 +170,14 @@ public class Matrix22 implements Serializable
 		return this;
 	}
 
-
 	/**
 	 * Return the matrix composed of the absolute values of all elements.
 	 * 
 	 * @return Absolute value matrix
 	 */
-	public final Matrix22 abs() 
+	public final Matrix22 abs()
 	{
-		return new Matrix22(Math.abs(ex.x()), Math.abs(ey.x()), Math.abs(ex.y()),
-				Math.abs(ey.y()));
+		return new Matrix22(Math.abs(ex.x()), Math.abs(ey.x()), Math.abs(ex.y()), Math.abs(ey.y()));
 	}
 
 	/**
@@ -197,7 +200,8 @@ public class Matrix22 implements Serializable
 	/**
 	 * Multiply a vector by this matrix.
 	 * 
-	 * @param v Vector to multiply by matrix.
+	 * @param v
+	 *            Vector to multiply by matrix.
 	 * @return Resulting vector
 	 */
 	public final Vector2 mul(final Vector2 v)
@@ -211,12 +215,11 @@ public class Matrix22 implements Serializable
 		out.set(ex.x() * v.x() + ey.x() * v.y(), tempy);
 	}
 
-	public final void mulToOutUnsafe(final Vector2 v, final Vector2 out) 
+	public final void mulToOutUnsafe(final Vector2 v, final Vector2 out)
 	{
 		assert (v != out);
 		out.set((ex.x() * v.x() + ey.x() * v.y()), (ex.y() * v.x() + ey.y() * v.y()));
 	}
-
 
 	/**
 	 * Multiply another matrix by this one (this one on left). djm optimized
@@ -224,7 +227,7 @@ public class Matrix22 implements Serializable
 	 * @param R
 	 * @return
 	 */
-	public final Matrix22 mul(final Matrix22 R) 
+	public final Matrix22 mul(final Matrix22 R)
 	{
 		final Matrix22 C = new Matrix22();
 		C.ex.set((ex.x() * R.ex.x() + ey.x() * R.ex.y()), (ex.y() * R.ex.x() + ey.y() * R.ex.y()));
@@ -232,13 +235,13 @@ public class Matrix22 implements Serializable
 		return C;
 	}
 
-	public final Matrix22 mulLocal(final Matrix22 R) 
+	public final Matrix22 mulLocal(final Matrix22 R)
 	{
 		mulToOut(R, this);
 		return this;
 	}
 
-	public final void mulToOut(final Matrix22 R, final Matrix22 out) 
+	public final void mulToOut(final Matrix22 R, final Matrix22 out)
 	{
 		final float tempy1 = this.ex.y() * R.ex.x() + this.ey.y() * R.ex.y();
 		final float tempx1 = this.ex.x() * R.ex.x() + this.ey.x() * R.ex.y();
@@ -249,11 +252,11 @@ public class Matrix22 implements Serializable
 		out.ey.set(tempx2, tempy2);
 	}
 
-	public final void mulToOutUnsafe(final Matrix22 R, final Matrix22 out) 
+	public final void mulToOutUnsafe(final Matrix22 R, final Matrix22 out)
 	{
 		assert (out != R);
 		assert (out != this);
-		
+
 		final float tempy1 = this.ex.y() * R.ex.x() + this.ey.y() * R.ex.y();
 		final float tempx1 = this.ex.x() * R.ex.x() + this.ey.x() * R.ex.y();
 		out.ex.set(tempx1, tempy1);
@@ -264,12 +267,13 @@ public class Matrix22 implements Serializable
 	}
 
 	/**
-	 * Multiply another matrix by the transpose of this one (transpose of this one on left). 
+	 * Multiply another matrix by the transpose of this one (transpose of this
+	 * one on left).
 	 * 
 	 * @param B
 	 * @return
 	 */
-	public final Matrix22 mulTrans(final Matrix22 B) 
+	public final Matrix22 mulTrans(final Matrix22 B)
 	{
 		final Matrix22 C = new Matrix22();
 
@@ -281,15 +285,18 @@ public class Matrix22 implements Serializable
 		return C;
 	}
 
-	public final Matrix22 mulTransLocal(final Matrix22 B) {
+	public final Matrix22 mulTransLocal(final Matrix22 B)
+	{
 		mulTransToOut(B, this);
 		return this;
 	}
 
-	public final void mulTransToOut(final Matrix22 B, final Matrix22 out) {
+	public final void mulTransToOut(final Matrix22 B, final Matrix22 out)
+	{
 		/*
-		 * out.ex.x = Vector2.dot(this.ex, B.ex); out.ex.y = Vector2.dot(this.ey, B.ex); out.ey.x =
-		 * Vector2.dot(this.ex, B.ey); out.ey.y = Vector2.dot(this.ey, B.ey);
+		 * out.ex.x = Vector2.dot(this.ex, B.ex); out.ex.y =
+		 * Vector2.dot(this.ey, B.ex); out.ey.x = Vector2.dot(this.ex, B.ey);
+		 * out.ey.y = Vector2.dot(this.ey, B.ey);
 		 */
 		final float x1 = this.ex.x * B.ex.x + this.ex.y * B.ex.y;
 		final float y1 = this.ey.x * B.ex.x + this.ey.y * B.ex.y;
@@ -301,7 +308,8 @@ public class Matrix22 implements Serializable
 		out.ey.y = y2;
 	}
 
-	public final void mulTransToOutUnsafe(final Matrix22 B, final Matrix22 out) {
+	public final void mulTransToOutUnsafe(final Matrix22 B, final Matrix22 out)
+	{
 		assert (B != out);
 		assert (this != out);
 		out.ex.x = this.ex.x * B.ex.x + this.ex.y * B.ex.y;
@@ -316,13 +324,15 @@ public class Matrix22 implements Serializable
 	 * @param v
 	 * @return
 	 */
-	public final Vector2 mulTrans(final Vector2 v) {
+	public final Vector2 mulTrans(final Vector2 v)
+	{
 		// return new Vector2(Vector2.dot(v, ex), Vector2.dot(v, col2));
 		return new Vector2((v.x * ex.x + v.y * ex.y), (v.x * ey.x + v.y * ey.y));
 	}
 
 	/* djm added */
-	public final void mulTransToOut(final Vector2 v, final Vector2 out) {
+	public final void mulTransToOut(final Vector2 v, final Vector2 out)
+	{
 		/*
 		 * out.x = Vector2.dot(v, ex); out.y = Vector2.dot(v, col2);
 		 */
@@ -337,7 +347,8 @@ public class Matrix22 implements Serializable
 	 * @param B
 	 * @return
 	 */
-	public final Matrix22 add(final Matrix22 B) {
+	public final Matrix22 add(final Matrix22 B)
+	{
 		// return new Matrix22(ex.add(B.ex), col2.add(B.ey));
 		Matrix22 m = new Matrix22();
 		m.ex.x = ex.x + B.ex.x;
@@ -353,7 +364,8 @@ public class Matrix22 implements Serializable
 	 * @param B
 	 * @return
 	 */
-	public final Matrix22 addLocal(final Matrix22 B) {
+	public final Matrix22 addLocal(final Matrix22 B)
+	{
 		// ex.addLocal(B.ex);
 		// col2.addLocal(B.ey);
 		ex.x += B.ex.x;
@@ -368,20 +380,24 @@ public class Matrix22 implements Serializable
 	 * 
 	 * @return The vector x that solves the above equation.
 	 */
-	public final Vector2 solve(final Vector2 b) {
+	public final Vector2 solve(final Vector2 b)
+	{
 		final float a11 = ex.x, a12 = ey.x, a21 = ex.y, a22 = ey.y;
 		float det = a11 * a22 - a12 * a21;
-		if (det != 0.0f) {
+		if (det != 0.0f)
+		{
 			det = 1.0f / det;
 		}
 		final Vector2 x = new Vector2(det * (a22 * b.x - a12 * b.y), det * (a11 * b.y - a21 * b.x));
 		return x;
 	}
 
-	public final void solveToOut(final Vector2 b, final Vector2 out) {
+	public final void solveToOut(final Vector2 b, final Vector2 out)
+	{
 		final float a11 = ex.x, a12 = ey.x, a21 = ex.y, a22 = ey.y;
 		float det = a11 * a22 - a12 * a21;
-		if (det != 0.0f) {
+		if (det != 0.0f)
+		{
 			det = 1.0f / det;
 		}
 		final float tempy = det * (a11 * b.y - a21 * b.x);
@@ -389,24 +405,28 @@ public class Matrix22 implements Serializable
 		out.y = tempy;
 	}
 
-	public final static Vector2 mul(final Matrix22 R, final Vector2 v) {
+	public final static Vector2 mul(final Matrix22 R, final Vector2 v)
+	{
 		// return R.mul(v);
 		return new Vector2(R.ex.x * v.x + R.ey.x * v.y, R.ex.y * v.x + R.ey.y * v.y);
 	}
 
-	public final static void mulToOut(final Matrix22 R, final Vector2 v, final Vector2 out) {
+	public final static void mulToOut(final Matrix22 R, final Vector2 v, final Vector2 out)
+	{
 		final float tempy = R.ex.y * v.x + R.ey.y * v.y;
 		out.x = R.ex.x * v.x + R.ey.x * v.y;
 		out.y = tempy;
 	}
 
-	public final static void mulToOutUnsafe(final Matrix22 R, final Vector2 v, final Vector2 out) {
+	public final static void mulToOutUnsafe(final Matrix22 R, final Vector2 v, final Vector2 out)
+	{
 		assert (v != out);
 		out.x = R.ex.x * v.x + R.ey.x * v.y;
 		out.y = R.ex.y * v.x + R.ey.y * v.y;
 	}
 
-	public final static Matrix22 mul(final Matrix22 A, final Matrix22 B) {
+	public final static Matrix22 mul(final Matrix22 A, final Matrix22 B)
+	{
 		// return A.mul(B);
 		final Matrix22 C = new Matrix22();
 		C.ex.x = A.ex.x * B.ex.x + A.ey.x * B.ex.y;
@@ -416,7 +436,8 @@ public class Matrix22 implements Serializable
 		return C;
 	}
 
-	public final static void mulToOut(final Matrix22 A, final Matrix22 B, final Matrix22 out) {
+	public final static void mulToOut(final Matrix22 A, final Matrix22 B, final Matrix22 out)
+	{
 		final float tempy1 = A.ex.y * B.ex.x + A.ey.y * B.ex.y;
 		final float tempx1 = A.ex.x * B.ex.x + A.ey.x * B.ex.y;
 		final float tempy2 = A.ex.y * B.ey.x + A.ey.y * B.ey.y;
@@ -427,7 +448,8 @@ public class Matrix22 implements Serializable
 		out.ey.y = tempy2;
 	}
 
-	public final static void mulToOutUnsafe(final Matrix22 A, final Matrix22 B, final Matrix22 out) {
+	public final static void mulToOutUnsafe(final Matrix22 A, final Matrix22 B, final Matrix22 out)
+	{
 		assert (out != A);
 		assert (out != B);
 		out.ex.x = A.ex.x * B.ex.x + A.ey.x * B.ex.y;
@@ -436,23 +458,28 @@ public class Matrix22 implements Serializable
 		out.ey.y = A.ex.y * B.ey.x + A.ey.y * B.ey.y;
 	}
 
-	public final static Vector2 mulTrans(final Matrix22 R, final Vector2 v) {
+	public final static Vector2 mulTrans(final Matrix22 R, final Vector2 v)
+	{
 		return new Vector2((v.x * R.ex.x + v.y * R.ex.y), (v.x * R.ey.x + v.y * R.ey.y));
 	}
 
-	public final static void mulTransToOut(final Matrix22 R, final Vector2 v, final Vector2 out) {
+	public final static void mulTransToOut(final Matrix22 R, final Vector2 v, final Vector2 out)
+	{
 		float outx = v.x * R.ex.x + v.y * R.ex.y;
 		out.y = v.x * R.ey.x + v.y * R.ey.y;
 		out.x = outx;
 	}
 
-	public final static void mulTransToOutUnsafe(final Matrix22 R, final Vector2 v, final Vector2 out) {
+	public final static void mulTransToOutUnsafe(final Matrix22 R, final Vector2 v,
+			final Vector2 out)
+	{
 		assert (out != v);
 		out.y = v.x * R.ey.x + v.y * R.ey.y;
 		out.x = v.x * R.ex.x + v.y * R.ex.y;
 	}
 
-	public final static Matrix22 mulTrans(final Matrix22 A, final Matrix22 B) {
+	public final static Matrix22 mulTrans(final Matrix22 A, final Matrix22 B)
+	{
 		final Matrix22 C = new Matrix22();
 		C.ex.x = A.ex.x * B.ex.x + A.ex.y * B.ex.y;
 		C.ex.y = A.ey.x * B.ex.x + A.ey.y * B.ex.y;
@@ -461,7 +488,8 @@ public class Matrix22 implements Serializable
 		return C;
 	}
 
-	public final static void mulTransToOut(final Matrix22 A, final Matrix22 B, final Matrix22 out) {
+	public final static void mulTransToOut(final Matrix22 A, final Matrix22 B, final Matrix22 out)
+	{
 		final float x1 = A.ex.x * B.ex.x + A.ex.y * B.ex.y;
 		final float y1 = A.ey.x * B.ex.x + A.ey.y * B.ex.y;
 		final float x2 = A.ex.x * B.ey.x + A.ex.y * B.ey.y;
@@ -473,7 +501,9 @@ public class Matrix22 implements Serializable
 		out.ey.y = y2;
 	}
 
-	public final static void mulTransToOutUnsafe(final Matrix22 A, final Matrix22 B, final Matrix22 out) {
+	public final static void mulTransToOutUnsafe(final Matrix22 A, final Matrix22 B,
+			final Matrix22 out)
+	{
 		assert (A != out);
 		assert (B != out);
 		out.ex.x = A.ex.x * B.ex.x + A.ex.y * B.ex.y;
@@ -482,7 +512,8 @@ public class Matrix22 implements Serializable
 		out.ey.y = A.ey.x * B.ey.x + A.ey.y * B.ey.y;
 	}
 
-	public final static Matrix22 createRotationalTransform(float angle) {
+	public final static Matrix22 createRotationalTransform(float angle)
+	{
 		Matrix22 mat = new Matrix22();
 		final float c = (float) Math.cos(angle);
 		final float s = (float) Math.sin(angle);
@@ -493,7 +524,8 @@ public class Matrix22 implements Serializable
 		return mat;
 	}
 
-	public final static void createRotationalTransform(float angle, Matrix22 out) {
+	public final static void createRotationalTransform(float angle, Matrix22 out)
+	{
 		final float c = (float) Math.cos(angle);
 		final float s = (float) Math.sin(angle);
 		out.ex.x = c;
@@ -502,20 +534,23 @@ public class Matrix22 implements Serializable
 		out.ey.y = c;
 	}
 
-	public final static Matrix22 createScaleTransform(float scale) {
+	public final static Matrix22 createScaleTransform(float scale)
+	{
 		Matrix22 mat = new Matrix22();
 		mat.ex.x = scale;
 		mat.ey.y = scale;
 		return mat;
 	}
 
-	public final static void createScaleTransform(float scale, Matrix22 out) {
+	public final static void createScaleTransform(float scale, Matrix22 out)
+	{
 		out.ex.x = scale;
 		out.ey.y = scale;
 	}
 
 	@Override
-	public int hashCode() {
+	public int hashCode()
+	{
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((ex == null) ? 0 : ex.hashCode());
@@ -524,17 +559,27 @@ public class Matrix22 implements Serializable
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
 		Matrix22 other = (Matrix22) obj;
-		if (ex == null) {
-			if (other.ex != null) return false;
-		} else if (!ex.equals(other.ex)) return false;
-		if (ey == null) {
-			if (other.ey != null) return false;
-		} else if (!ey.equals(other.ey)) return false;
+		if (ex == null)
+		{
+			if (other.ex != null)
+				return false;
+		} else if (!ex.equals(other.ex))
+			return false;
+		if (ey == null)
+		{
+			if (other.ey != null)
+				return false;
+		} else if (!ey.equals(other.ey))
+			return false;
 		return true;
 	}
 }

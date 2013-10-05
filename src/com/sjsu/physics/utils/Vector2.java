@@ -4,7 +4,7 @@ package com.sjsu.physics.utils;
  * Two dimensional vector with appropriate related functions.
  * Uses float precisision for memory conservation.
  */
-public class Vector2 
+public class Vector2
 {
 	public float x;
 	public float y;
@@ -33,7 +33,7 @@ public class Vector2
 		y = fY;
 	}
 
-	public void set (Vector2 v)
+	public void set(Vector2 v)
 	{
 		x = v.x();
 		y = v.y();
@@ -66,7 +66,7 @@ public class Vector2
 	}
 
 	/* Turns this vector into unit-length 1 */
-	public Vector2 normalize() 
+	public Vector2 normalize()
 	{
 		float invertedMag = (float) (1.0 / magnitude());
 		return new Vector2(x * invertedMag, y * invertedMag);
@@ -77,7 +77,7 @@ public class Vector2
 	{
 		return new Vector2(x + vec.x(), y + vec.y());
 	}
-	
+
 	public Vector2 addTo(float vx, float vy)
 	{
 		return new Vector2(x + vx, y + vy);
@@ -94,7 +94,7 @@ public class Vector2
 	{
 		return new Vector2(x - vec.x(), y - vec.y());
 	}
-	
+
 	public Vector2 subtractBy(float vx, float vy)
 	{
 		return new Vector2(x - vx, y - vy);
@@ -111,89 +111,96 @@ public class Vector2
 	{
 		return new Vector2(x / scalar, y / scalar);
 	}
-	
+
 	/* Returns the angle this vector makes with respect to the x axis */
 	public float angle()
 	{
 		return ((float) Math.atan2(y, x));
 	}
-	
+
 	/* returns the distance from this point to another point P */
 	public float distanceTo(Vector2 p)
 	{
-		double dist = (Math.pow( (this.x() - p.x()), 2) + Math.pow( (this.y() - p.y()), 2));
-		return ( (float) (Math.sqrt(dist)) );
+		double dist = (Math.pow((this.x() - p.x()), 2) + Math.pow((this.y() - p.y()), 2));
+		return ((float) (Math.sqrt(dist)));
 	}
-	
-	/** return the projection of this vector onto line segment AB
-	 * AKA the closest point on the edge AB to this vector
-	 * @param a Vertex 1
-	 * @param b Vertex 2
+
+	/**
+	 * return the projection of this vector onto line segment AB AKA the closest
+	 * point on the edge AB to this vector
+	 * 
+	 * @param a
+	 *            Vertex 1
+	 * @param b
+	 *            Vertex 2
 	 * @return The vector projection onto edge AB
 	 */
 	public Vector2 projectPointOntoEdge(Vector2 a, Vector2 b)
 	{
 		// vector from edge to point
 		Vector2 v = this.subtractBy(a);
-	 
+
 		// edge vector
 		Vector2 e = b.subtractBy(a);
-	 
+
 		// time along edge
 		float t = e.dot(v) / e.magnitudeSquared();
-	 
+
 		// clamp to edge bounds
-		t = Math.min( Math.max(t, 0), 1 );
-	 
+		t = Math.min(Math.max(t, 0), 1);
+
 		// form point and return
-		return a.addTo( e.multiplyBy(t) );
+		return a.addTo(e.multiplyBy(t));
 	}
-	
+
 	/* returns the midpoint of this vector to another vector */
 	public Vector2 midPoint(Vector2 b)
 	{
-		float x = ( this.x() + b.x() ) / 2;
-		float y = ( this.y() + b.y() ) / 2;
-		
+		float x = (this.x() + b.x()) / 2;
+		float y = (this.y() + b.y()) / 2;
+
 		return new Vector2(x, y);
 	}
-	
+
 	/* Return the minimum distance between line segment AB and this point */
 	public float minimumDistanceToLine(Vector2 a, Vector2 b)
 	{
 		Vector2 closestPoint = this.projectPointOntoEdge(a, b);
 		return this.distanceTo(closestPoint);
 	}
-	
-	/* Returns the projection of this vector onto vector B (Ab = A dot Bnormalized) */
+
+	/*
+	 * Returns the projection of this vector onto vector B (Ab = A dot
+	 * Bnormalized)
+	 */
 	public Vector2 project(Vector2 b)
 	{
 		float dp = this.dot(b);
-		
-		float projX = ( dp / (b.x() * b.x() + b.y() * b.y())) * b.x();
-		float projY = ( dp / (b.x() * b.x() + b.y() * b.y())) * b.y();
-		
+
+		float projX = (dp / (b.x() * b.x() + b.y() * b.y())) * b.x();
+		float projY = (dp / (b.x() * b.x() + b.y() * b.y())) * b.y();
+
 		return new Vector2(projX, projY);
 	}
-	
+
 	/* returns the rotation of this vector around it's origin by rad radians */
 	public Vector2 rotate(float d)
 	{
 		double cs = Math.cos(d);
 		double sn = Math.sin(d);
-		
+
 		float px = (float) (this.x() * cs - this.y() * sn);
 		float py = (float) (this.x() * sn + this.y() * cs);
-		
+
 		return new Vector2(px, py);
 	}
-	
+
 	/* rotate this vector by 90 degrees */
 	public Vector2 rotate90()
 	{
 		return new Vector2(-this.y(), this.x());
 	}
-	
+
 	/* rotate this vector by 270 degrees */
 	public Vector2 rotate270()
 	{
@@ -206,16 +213,16 @@ public class Vector2
 		return (x * v.x() + y * v.y());
 	}
 
-	public final static float dot(Vector2 a, Vector2 b) 
+	public final static float dot(Vector2 a, Vector2 b)
 	{
 		return a.x * b.x + a.y * b.y;
 	}
-	
+
 	public float cross(Vector2 v)
 	{
 		return (x * v.y() - y * v.x());
 	}
-	
+
 	/* makes a vector out of an angle */
 	public final static Vector2 fromAngle(float a)
 	{
@@ -228,7 +235,7 @@ public class Vector2
 		Vector2 copy = new Vector2(this.x, this.y);
 		return copy;
 	}
-	
+
 	@Override
 	public String toString()
 	{

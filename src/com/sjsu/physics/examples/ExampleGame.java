@@ -28,7 +28,7 @@ import com.sjsu.physics.shapes.RigidBody.BodyType;
 import com.sjsu.physics.utils.Globals;
 import com.sjsu.physics.utils.Vector2;
 
-public class ExampleGame 
+public class ExampleGame
 {
 	private JFrame mainFrame;
 	private static JPanel drawingPanel;
@@ -41,14 +41,14 @@ public class ExampleGame
 
 	public static World world;
 
-
 	public ExampleGame()
 	{
 		world = new World();
 
 		mainFrame = new JFrame("Simple Phys");
 		drawingPanel = new DrawingPanel();
-		drawingPanel.setPreferredSize(new Dimension(Globals.MAX_GAME_WIDTH, Globals.MAX_GAME_HEIGHT));
+		drawingPanel
+				.setPreferredSize(new Dimension(Globals.MAX_GAME_WIDTH, Globals.MAX_GAME_HEIGHT));
 		drawingPanel.addMouseListener(new ClickListener());
 		mainFrame.setContentPane(drawingPanel);
 		mainFrame.pack();
@@ -57,24 +57,22 @@ public class ExampleGame
 
 		generator = new Random(System.currentTimeMillis());
 
-		//makeWalls();
-		//makeBox();
-		//makeFixedBox();
-		//makeRandomBodies();
-		//makeHeadOn();
-		//makeOffsetHeadOn();
-		//makePolygons();
-		//makeHeadOnPolygons();
+		// makeWalls();
+		// makeBox();
+		// makeFixedBox();
+		// makeRandomBodies();
+		// makeHeadOn();
+		// makeOffsetHeadOn();
+		// makePolygons();
+		// makeHeadOnPolygons();
 		makeFloor();
-		//makeNewtonCradle();
+		// makeNewtonCradle();
 	}
 
-
 	public static void main(String arg[])
-	{	
+	{
 		// create the window
 		ExampleGame game = new ExampleGame();
-
 
 		world.startThreads();
 
@@ -84,7 +82,6 @@ public class ExampleGame
 		timer.schedule(step, 0, 1);
 	}
 
-
 	/* create a box of bodies to act as a wall-bounding box fixed */
 	public void makeFixedBox()
 	{
@@ -93,8 +90,9 @@ public class ExampleGame
 
 		// horizontal walls
 		for (int i = 0; i < BOX_LENGTH * 4 + 1; i++)
-		{	
-			int xLoc = (int) ((centerX - BOX_LENGTH * Globals.DEFAULT_CIRCLE_RADIUS * 4) + (i * Globals.DEFAULT_CIRCLE_RADIUS * 2)); 
+		{
+			int xLoc = (int) ((centerX - BOX_LENGTH * Globals.DEFAULT_CIRCLE_RADIUS * 4) + (i
+					* Globals.DEFAULT_CIRCLE_RADIUS * 2));
 			int yLoc1 = (int) (centerY - BOX_LENGTH * Globals.DEFAULT_CIRCLE_RADIUS * 4);
 			int yLoc2 = (int) (centerY + BOX_LENGTH * Globals.DEFAULT_CIRCLE_RADIUS * 4);
 			Vector2 loc1 = new Vector2(xLoc, yLoc1);
@@ -111,7 +109,7 @@ public class ExampleGame
 		// vertical walls
 		for (int i = 0; i < BOX_LENGTH * 4; i++)
 		{
-			int yLoc = (int) ((centerY - BOX_LENGTH * Globals.DEFAULT_CIRCLE_RADIUS * 4) + (i * Globals.DEFAULT_CIRCLE_RADIUS) * 2); 
+			int yLoc = (int) ((centerY - BOX_LENGTH * Globals.DEFAULT_CIRCLE_RADIUS * 4) + (i * Globals.DEFAULT_CIRCLE_RADIUS) * 2);
 			int xLoc1 = (int) (centerY - BOX_LENGTH * Globals.DEFAULT_CIRCLE_RADIUS * 4);
 			int xLoc2 = (int) (centerY + BOX_LENGTH * Globals.DEFAULT_CIRCLE_RADIUS * 4);
 			Vector2 loc1 = new Vector2(xLoc1, yLoc);
@@ -120,7 +118,6 @@ public class ExampleGame
 			Circle b2 = new Circle(loc2, Globals.DEFAULT_CIRCLE_RADIUS);
 			b1.setMass(Globals.INFINITY);
 			b2.setMass(Globals.INFINITY);
-
 
 			world.addBodyToWorld(b1);
 			world.addBodyToWorld(b2);
@@ -136,14 +133,15 @@ public class ExampleGame
 		// horizontal walls
 		for (int i = 0; i < BOX_LENGTH + 1; i++)
 		{
-			int xLoc = (int) ((centerX - BOX_LENGTH * Globals.DEFAULT_CIRCLE_RADIUS) + (i * Globals.DEFAULT_CIRCLE_RADIUS * 2)); 
+			int xLoc = (int) ((centerX - BOX_LENGTH * Globals.DEFAULT_CIRCLE_RADIUS) + (i
+					* Globals.DEFAULT_CIRCLE_RADIUS * 2));
 			int yLoc1 = (int) (centerY - BOX_LENGTH * Globals.DEFAULT_CIRCLE_RADIUS);
 			int yLoc2 = (int) (centerY + BOX_LENGTH * Globals.DEFAULT_CIRCLE_RADIUS);
 
 			Circle b1 = new Circle(xLoc, yLoc1, Globals.DEFAULT_CIRCLE_RADIUS);
 			Circle b2 = new Circle(xLoc, yLoc2, Globals.DEFAULT_CIRCLE_RADIUS);
-			//b1.setMass(Constants.INFINITY);
-			//b2.setMass(Constants.INFINITY);
+			// b1.setMass(Constants.INFINITY);
+			// b2.setMass(Constants.INFINITY);
 			b1.setMass(MAX_MASS);
 			b2.setMass(MAX_MASS);
 
@@ -154,14 +152,15 @@ public class ExampleGame
 		// vertical walls
 		for (int i = 0; i < BOX_LENGTH; i++)
 		{
-			int yLoc = (int) ((centerY - BOX_LENGTH * Globals.DEFAULT_CIRCLE_RADIUS) + (i * Globals.DEFAULT_CIRCLE_RADIUS * 2)); 
+			int yLoc = (int) ((centerY - BOX_LENGTH * Globals.DEFAULT_CIRCLE_RADIUS) + (i
+					* Globals.DEFAULT_CIRCLE_RADIUS * 2));
 			int xLoc1 = (int) (centerY - BOX_LENGTH * Globals.DEFAULT_CIRCLE_RADIUS);
 			int xLoc2 = (int) (centerY + BOX_LENGTH * Globals.DEFAULT_CIRCLE_RADIUS);
 
 			Circle b1 = new Circle(xLoc1, yLoc, Globals.DEFAULT_CIRCLE_RADIUS);
 			Circle b2 = new Circle(xLoc2, yLoc, Globals.DEFAULT_CIRCLE_RADIUS);
-			//b1.setMass(Constants.INFINITY);
-			//b2.setMass(Constants.INFINITY);
+			// b1.setMass(Constants.INFINITY);
+			// b2.setMass(Constants.INFINITY);
 			b1.setMass(20);
 			b2.setMass(20);
 
@@ -173,8 +172,8 @@ public class ExampleGame
 	/* Make some polygons */
 	public void makePolygons()
 	{
-		int[] xpoints = {-5, -5, 5, 5};
-		int[] ypoints = {-5, 5, 5, -5};
+		int[] xpoints = { -5, -5, 5, 5 };
+		int[] ypoints = { -5, 5, 5, -5 };
 
 		Polygon p = new Polygon(xpoints, ypoints, 4);
 
@@ -194,10 +193,10 @@ public class ExampleGame
 	/* 2d headon polygon collision */
 	public void makeHeadOnPolygons()
 	{
-		int[] xpoints1 = {0, 10, 0, -10};
-		int[] ypoints1 = {-10, 0, 10, 0};
-		int[] xpoints2 = {-11, 11, 11, -11};
-		int[] ypoints2 = {-11, -11, 11, 11};
+		int[] xpoints1 = { 0, 10, 0, -10 };
+		int[] ypoints1 = { -10, 0, 10, 0 };
+		int[] xpoints2 = { -11, 11, 11, -11 };
+		int[] ypoints2 = { -11, -11, 11, 11 };
 
 		Polygon p1 = new Polygon(xpoints1, ypoints1, 4);
 		Polygon p2 = new Polygon(xpoints2, ypoints2, 4);
@@ -218,14 +217,14 @@ public class ExampleGame
 	/* a floor polygon */
 	public void makeFloor()
 	{
-		int[] xpoints1 = {-200, 200, 200, -200};
-		int[] ypoints1 = {-10, -10, 10, 10};
-		int[] xpoints2 = {-10, 10, 10, -10};
-		int[] ypoints2 = {-50, -50, 50, 50};
-		int[] xpoints3 = {-10, 10, 10, -10};
-		int[] ypoints3 = {-200, -200, 200, 200};
-		int[] xpoints4 = {-10, 10, 10, -10};
-		int[] ypoints4 = {-200, -200, 200, 200};
+		int[] xpoints1 = { -200, 200, 200, -200 };
+		int[] ypoints1 = { -10, -10, 10, 10 };
+		int[] xpoints2 = { -10, 10, 10, -10 };
+		int[] ypoints2 = { -50, -50, 50, 50 };
+		int[] xpoints3 = { -10, 10, 10, -10 };
+		int[] ypoints3 = { -200, -200, 200, 200 };
+		int[] xpoints4 = { -10, 10, 10, -10 };
+		int[] ypoints4 = { -200, -200, 200, 200 };
 
 		Polygon p1 = new Polygon(xpoints1, ypoints1, 4);
 		Polygon p2 = new Polygon(xpoints2, ypoints2, 4);
@@ -234,15 +233,15 @@ public class ExampleGame
 
 		PolyBody b1 = new PolyBody(p1, 210, Globals.MAX_GAME_HEIGHT - 400);
 		PolyBody b2 = new PolyBody(p2, 110, Globals.MAX_GAME_HEIGHT - 900);
-		PolyBody b3 = new PolyBody(p3, 550, Globals.MAX_GAME_HEIGHT - 800);
-		PolyBody b4 = new PolyBody(p4, 730, Globals.MAX_GAME_HEIGHT - 400);
+		PolyBody b3 = new PolyBody(p3, 550, Globals.MAX_GAME_HEIGHT - 700);
+		PolyBody b4 = new PolyBody(p4, 730, Globals.MAX_GAME_HEIGHT - 410);
 
 		b1.setMass(Globals.INFINITY);
 		b2.setMass(Globals.INFINITY);
 		b3.setMass(Globals.INFINITY);
 		b4.setMass(Globals.INFINITY);
-		
-		b4.rotateBy(1);
+
+		b4.rotateBy(1.15f);
 		b2.rotateBy((float) Math.PI / 2);
 
 		world.addBodyToWorld(b1);
@@ -255,15 +254,18 @@ public class ExampleGame
 	public void makeOffsetHeadOn()
 	{
 		// // Head on collision
-		Circle b1 = new Circle(new Vector2(45, Globals.MAX_GAME_WIDTH / 2 + 2), Globals.DEFAULT_CIRCLE_RADIUS);
+		Circle b1 = new Circle(new Vector2(45, Globals.MAX_GAME_WIDTH / 2 + 2),
+				Globals.DEFAULT_CIRCLE_RADIUS);
 		b1.setVelocity(new Vector2(MAX_VELOCITY, 0));
 		b1.setMass(5);
 
-		Circle b2 = new Circle(new Vector2(Globals.MAX_GAME_WIDTH - 45, Globals.MAX_GAME_WIDTH / 2 - 8), Globals.DEFAULT_CIRCLE_RADIUS);
+		Circle b2 = new Circle(new Vector2(Globals.MAX_GAME_WIDTH - 45,
+				Globals.MAX_GAME_WIDTH / 2 - 8), Globals.DEFAULT_CIRCLE_RADIUS);
 		b2.setVelocity(new Vector2(-MAX_VELOCITY, 0));
 		b2.setMass(10);
 
-		Circle b3 = new Circle(new Vector2(Globals.MAX_GAME_WIDTH / 2 - 40, Globals.MAX_GAME_WIDTH / 2), Globals.DEFAULT_CIRCLE_RADIUS);
+		Circle b3 = new Circle(new Vector2(Globals.MAX_GAME_WIDTH / 2 - 40,
+				Globals.MAX_GAME_WIDTH / 2), Globals.DEFAULT_CIRCLE_RADIUS);
 		b3.setVelocity(Globals.ZERO_VECTOR);
 		b3.setMass(25);
 
@@ -276,15 +278,18 @@ public class ExampleGame
 	public void makeHeadOn()
 	{
 		// // Head on collision
-		Circle b1 = new Circle(new Vector2(10, Globals.MAX_GAME_WIDTH / 2 - 30), Globals.DEFAULT_CIRCLE_RADIUS);
+		Circle b1 = new Circle(new Vector2(10, Globals.MAX_GAME_WIDTH / 2 - 30),
+				Globals.DEFAULT_CIRCLE_RADIUS);
 		b1.setVelocity(new Vector2(MAX_VELOCITY, 0));
 		b1.setMass(5);
 
-		Circle b2 = new Circle(new Vector2(Globals.MAX_GAME_WIDTH - 10, Globals.MAX_GAME_WIDTH / 2 - 30), Globals.DEFAULT_CIRCLE_RADIUS);
+		Circle b2 = new Circle(new Vector2(Globals.MAX_GAME_WIDTH - 10,
+				Globals.MAX_GAME_WIDTH / 2 - 30), Globals.DEFAULT_CIRCLE_RADIUS);
 		b2.setVelocity(new Vector2(-MAX_VELOCITY, 0));
 		b2.setMass(10);
 
-		Circle b3 = new Circle(new Vector2(Globals.MAX_GAME_WIDTH / 2 - 40, Globals.MAX_GAME_WIDTH / 2 - 30), Globals.DEFAULT_CIRCLE_RADIUS);
+		Circle b3 = new Circle(new Vector2(Globals.MAX_GAME_WIDTH / 2 - 40,
+				Globals.MAX_GAME_WIDTH / 2 - 30), Globals.DEFAULT_CIRCLE_RADIUS);
 		b3.setVelocity(new Vector2(0, 0));
 		b3.setMass(50);
 
@@ -300,7 +305,7 @@ public class ExampleGame
 		int xLoc = (int) ((centerX - BOX_LENGTH * Globals.DEFAULT_CIRCLE_RADIUS) + (Globals.DEFAULT_CIRCLE_RADIUS));
 		int yLoc1 = Globals.MAX_GAME_WIDTH / 2;
 		Vector2 loc1 = new Vector2(xLoc, yLoc1);
-		Vector2 loc2 = new Vector2 (50, yLoc1);
+		Vector2 loc2 = new Vector2(50, yLoc1);
 
 		Circle b1 = new Circle(loc1, Globals.DEFAULT_CIRCLE_RADIUS);
 		Circle b2 = new Circle(loc2, Globals.DEFAULT_CIRCLE_RADIUS);
@@ -321,28 +326,32 @@ public class ExampleGame
 
 	/* Make some random circles to bounce around */
 	public void makeRandomBodies()
-	{	
-		//RANDOM BODIES
+	{
+		// RANDOM BODIES
 		for (int i = 0; i < NUM_BODIES; i++)
 		{
-			Vector2 location = new Vector2(generator.nextInt(Globals.MAX_GAME_WIDTH), generator.nextInt(Globals.MAX_GAME_HEIGHT));
-			Vector2 velocity = new Vector2(generator.nextInt(MAX_VELOCITY), generator.nextInt(MAX_VELOCITY));
+			Vector2 location = new Vector2(generator.nextInt(Globals.MAX_GAME_WIDTH),
+					generator.nextInt(Globals.MAX_GAME_HEIGHT));
+			Vector2 velocity = new Vector2(generator.nextInt(MAX_VELOCITY),
+					generator.nextInt(MAX_VELOCITY));
 			int mass = generator.nextInt(MAX_MASS);
 			mass = 10;
 
 			Circle b = new Circle(location, Globals.DEFAULT_CIRCLE_RADIUS);
 
-			System.out.println("Velcity:" + velocity.magnitude() + "  X:" + location.x() + " Y:" + location.y());
+			System.out.println("Velcity:" + velocity.magnitude() + "  X:" + location.x() + " Y:"
+					+ location.y());
 			b.setVelocity(velocity);
 			b.setMass(mass);
 
 			// add the body to physics engine
 			world.addBodyToWorld(b);
-		} 
+		}
 
 		// A single body w/ random velocity in middle
 		Vector2 location = new Vector2(Globals.MAX_GAME_WIDTH / 2, Globals.MAX_GAME_HEIGHT / 2);
-		Vector2 velocity = new Vector2(generator.nextInt(MAX_VELOCITY), generator.nextInt(MAX_VELOCITY));
+		Vector2 velocity = new Vector2(generator.nextInt(MAX_VELOCITY),
+				generator.nextInt(MAX_VELOCITY));
 		int mass = 10;
 
 		Circle b = new Circle(location, Globals.DEFAULT_CIRCLE_RADIUS);
@@ -356,110 +365,119 @@ public class ExampleGame
 
 }
 
-
-
 /* JPanel that does all the drawing to the mainFrame */
-class DrawingPanel extends JPanel 
+class DrawingPanel extends JPanel
 {
-	private static Color COLORBLACK = new Color(0, 0, 0);
-	private static Color COLORP0 = new Color(132, 161, 240);
-	private static Color COLORP1 = new Color(21, 92, 73);
-	private static Color COLORP2 = new Color(21, 40, 92);
-	private static Color COLORP3 = new Color(145, 51, 57);
-	
+	private static Color BLACK = new Color(0, 0, 0);
+	private static Color LIGHTBLUE = new Color(132, 161, 240);
+	private static Color GREEN = new Color(21, 92, 73);
+	private static Color DARKBLUE = new Color(21, 40, 92);
+	private static Color RED = new Color(145, 51, 57);
+	private static Color YELLOW = new Color(145, 151, 57);
+
+
 	private long nextSecond = System.currentTimeMillis() + 1000;
 	private int framesInLastSecond = 0;
 	private int framesInCurrentSecond = 0;
 
-	public void paintComponent(Graphics g) 
+	@Override
+	public void paintComponent(Graphics g)
 	{
 
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
 
-		//paint all bodies associated with it
+		// paint all bodies associated with it
 		ArrayList<RigidBody> bodies = World.allBodies();
-		for (int j = 0; j < bodies.size(); j++) 
+		for (int j = 0; j < bodies.size(); j++)
 		{
 			if (bodies.get(j) == null)
 				continue;
-			
+
 			if (bodies.get(j).type() == BodyType.CIRCLE)
 			{
 				Circle c = (Circle) bodies.get(j);
-				Rectangle2D.Float bounds = new Rectangle2D.Float(c.center().x() - c.bounds().halfWidth(),
-						c.center().y() - c.bounds().halfHeight(), c.bounds().halfWidth() * 2, c.bounds().halfHeight() * 2);
-				Ellipse2D.Float geom = new Ellipse2D.Float(c.center().x() - c.bounds().radius(), 
-						c.center().y() - c.bounds().radius(), c.bounds().radius() * 2, c.bounds().radius() * 2);
-				
-				g2.setColor(getColor((RigidBody) c));
+				Rectangle2D.Float bounds = new Rectangle2D.Float(c.center().x()
+						- c.bounds().halfWidth(), c.center().y() - c.bounds().halfHeight(), c
+						.bounds().halfWidth() * 2, c.bounds().halfHeight() * 2);
+				Ellipse2D.Float geom = new Ellipse2D.Float(c.center().x() - c.bounds().radius(), c
+						.center().y() - c.bounds().radius(), c.bounds().radius() * 2, c.bounds()
+						.radius() * 2);
+
+				g2.setColor(getColor(c));
 				g2.fill(geom);
 				g2.draw(bounds);
-			}
-			else if (bodies.get(j).type() == BodyType.POLYGON)
-			{	
+			} else if (bodies.get(j).type() == BodyType.POLYGON)
+			{
 				PolyBody b = (PolyBody) bodies.get(j);
-				Rectangle2D.Float bounds = new Rectangle2D.Float(b.center().x() - b.bounds().halfWidth(),
-						b.center().y() - b.bounds().halfHeight(), b.bounds().halfWidth() * 2, b.bounds().halfHeight() * 2);
+				Rectangle2D.Float bounds = new Rectangle2D.Float(b.center().x()
+						- b.bounds().halfWidth(), b.center().y() - b.bounds().halfHeight(), b
+						.bounds().halfWidth() * 2, b.bounds().halfHeight() * 2);
 
-				g2.setColor(getColor((RigidBody) b));
+				g2.setColor(getColor(b));
 				g2.fillPolygon(b.polygonWorld());
-				g2.setColor(COLORBLACK);
+				g2.setColor(BLACK);
 				g2.draw(bounds);
-								
+
 				drawNormals(b, g2);
 			}
-			g2.setColor(COLORBLACK);
+			g2.setColor(BLACK);
 		}
 
 		if (Globals.DRAW_QUADTREE)
 			drawQuadTree(World.getTreeRoot(), g2);
-		
-//		for (int i = 0; i < Globals.NUM_PROCESSORS; i++)
-//		{
-//			drawContacts(World.getThread(i).contacts, g2);
-//		}
 
+		// for (int i = 0; i < Globals.NUM_PROCESSORS; i++)
+		// {
+		// drawContacts(World.getThread(i).contacts, g2);
+		// }
 
 		// Below (framesInLastSecond) shows the FPS of the main thread
-		//		long currentTime = System.currentTimeMillis();
-		//		if (currentTime > nextSecond) 
-		//		{
-		//			nextSecond += 1000;
-		//			framesInLastSecond = framesInCurrentSecond;
-		//			framesInCurrentSecond = 0;
-		//		}
-		//		framesInCurrentSecond++;
+		// long currentTime = System.currentTimeMillis();
+		// if (currentTime > nextSecond)
+		// {
+		// nextSecond += 1000;
+		// framesInLastSecond = framesInCurrentSecond;
+		// framesInCurrentSecond = 0;
+		// }
+		// framesInCurrentSecond++;
 		//
-		//		g2.drawString(framesInLastSecond + " FPS: ", 75, 75);
+		// g2.drawString(framesInLastSecond + " FPS: ", 75, 75);
 
-		// Show fps of each thread, remake back to java coordinates so this displays correctly
-//		g2.setTransform(at);
-//		for (int i = 0; i < Globals.NUM_PROCESSORS; i++)
-//		{
-//			g2.drawString("Elapsed time for 1 loop: " + Math.round(World.getThread(i).timeStep * 100), 75, 75 + (i * 15));
-//		}
-		g2.drawString("NumBodies: " + bodies.size(), 75, 55);	
+		// Show fps of each thread, remake back to java coordinates so this
+		// displays correctly
+		// g2.setTransform(at);
+		// for (int i = 0; i < Globals.NUM_PROCESSORS; i++)
+		// {
+		// g2.drawString("Elapsed time for 1 loop: " +
+		// Math.round(World.getThread(i).timeStep * 100), 75, 75 + (i * 15));
+		// }
+		g2.drawString("NumBodies: " + bodies.size(), 75, 55);
 	}
-	
+
 	// Get the color based on process number
 	private Color getColor(RigidBody a)
 	{
-		int processId = a.process();
+//		int s = a.process();
+		int s = a.depth;
 
-		switch(processId)
+		switch (s)
 		{
 		case 0:
-			return COLORP0;
+			return LIGHTBLUE;
 		case 1:
-			return COLORP1;
+			return GREEN;
 		case 2:
-			return COLORP2;
+			return RED;
+		case 3:
+			return DARKBLUE;
+		case 4:
+			return YELLOW;
 		default:
-			return COLORP3;
+			return BLACK;
 		}
 	}
-	
+
 	private void drawOrigin(Graphics2D g2)
 	{
 		Line2D.Float xLine = new Line2D.Float(5, 5, 5, 50);
@@ -477,13 +495,13 @@ class DrawingPanel extends JPanel
 		{
 			center = contacts.get(i).contactPoint();
 			radius = Globals.DEFAULT_CIRCLE_RADIUS;
-			Ellipse2D.Float geom = new Ellipse2D.Float(center.x() - radius, 
-					center.y() - radius, radius * 2, radius * 2);
+			Ellipse2D.Float geom = new Ellipse2D.Float(center.x() - radius, center.y() - radius,
+					radius * 2, radius * 2);
 			g2.draw(geom);
 		}
 		g2.setColor(new Color(0, 0, 0));
 	}
-	
+
 	private void drawQuadTree(QuadTreeNode n, Graphics2D g2)
 	{
 		if (n == null)
@@ -492,9 +510,10 @@ class DrawingPanel extends JPanel
 		// Draw the parent node
 		g2.drawRect(n.bounds().x, n.bounds().y, n.bounds().width, n.bounds().height);
 
-//		if (n.bodies().size() > 0)
-//			System.out.println(" Depth: " + n.depth() + "   numbodies: " + n.bodies().size());
-		
+		// if (n.bodies().size() > 0)
+		// System.out.println(" Depth: " + n.depth() + "   numbodies: " +
+		// n.bodies().size());
+
 		// draw all children of parent node
 		for (int i = 0; i < 4; i++)
 		{
@@ -502,92 +521,96 @@ class DrawingPanel extends JPanel
 				drawQuadTree(n.children()[i], g2);
 		}
 	}
-	
+
 	// draw the normals onto the body
 	public void drawNormals(PolyBody b, Graphics2D g2)
 	{
 		g2.setColor(new Color(130, 200, 0));
 		for (int i = 0; i < b.numVertices(); i++)
 		{
-			Vector2 normal = b.normal(i); 
+			Vector2 normal = b.normal(i);
 			float fromx = b.center().x();
 			float fromy = b.center().y();
 			float tox = normal.x() + fromx;
 			float toy = normal.y() + fromy;
-			
-//			System.out.println(" V1: " + b.verticesWorld().get(i) + "   v2: " + b.verticesWorld().get( (i + 1) % b.numVertices()) + "   normal: " + normal);
+
+			// System.out.println(" V1: " + b.verticesWorld().get(i) + "   v2: "
+			// + b.verticesWorld().get( (i + 1) % b.numVertices()) +
+			// "   normal: " + normal);
 			Line2D.Float line = new Line2D.Float(fromx, fromy, tox, toy);
 			float radius = 5;
-			Ellipse2D.Float center = new Ellipse2D.Float(b.center().x() - radius, 
-					b.center().y() - radius, radius * 2, radius * 2);
+			Ellipse2D.Float center = new Ellipse2D.Float(b.center().x() - radius, b.center().y()
+					- radius, radius * 2, radius * 2);
 			g2.draw(line);
 			g2.draw(center);
 		}
-		g2.setColor(COLORBLACK);
+		g2.setColor(BLACK);
 	}
 
 }
 
-
 /* Timer class to take one step every x seconds */
-class PhysicsStep extends TimerTask 
+class PhysicsStep extends TimerTask
 {
 	private World world;
 	private DrawingPanel drawingPanel;
 
 	public PhysicsStep(World w, JPanel dp)
 	{
-		drawingPanel = (DrawingPanel)dp;
+		drawingPanel = (DrawingPanel) dp;
 		world = w;
 	}
 
 	@Override
-	public void run() 
+	public void run()
 	{
-		//System.out.println("Step");
+		// System.out.println("Step");
 		drawingPanel.repaint();
 
 	}
 }
 
-
 class ClickListener implements MouseListener
 {
 
 	@Override
-	public void mouseClicked(MouseEvent arg0) {
+	public void mouseClicked(MouseEvent arg0)
+	{
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void mouseEntered(MouseEvent arg0) {
+	public void mouseEntered(MouseEvent arg0)
+	{
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void mouseExited(MouseEvent arg0) {
+	public void mouseExited(MouseEvent arg0)
+	{
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void mousePressed(MouseEvent arg0) {
+	public void mousePressed(MouseEvent arg0)
+	{
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent arg0) 
+	public void mouseReleased(MouseEvent arg0)
 	{
 		if (arg0.isShiftDown() && arg0.getButton() == MouseEvent.BUTTON1)
 		{
 			int centerX = arg0.getX();
 			int centerY = arg0.getY();
-			
-			int[] xpoints = {-50, 50, 50, -50};
-			int[] ypoints = {-10, -10, 10, 10};
+
+			int[] xpoints = { -50, 50, 50, -50 };
+			int[] ypoints = { -10, -10, 10, 10 };
 
 			Polygon p = new Polygon(xpoints, ypoints, 4);
 			Vector2 loc = new Vector2(centerX, centerY);
@@ -602,14 +625,13 @@ class ClickListener implements MouseListener
 			System.out.println("Click added @ : <" + centerX + ", " + centerY);
 
 			ExampleGame.world.addBodyToWorld(b1);
-		}
-		else if (arg0.getButton() == MouseEvent.BUTTON1)
+		} else if (arg0.getButton() == MouseEvent.BUTTON1)
 		{
 			int centerX = arg0.getX();
 			int centerY = arg0.getY();
 
-			int[] xpoints = {-10, 10, 10, -10};
-			int[] ypoints = {-10, -10, 10, 10};
+			int[] xpoints = { -10, 10, 10, -10 };
+			int[] ypoints = { -10, -10, 10, 10 };
 
 			Polygon p = new Polygon(xpoints, ypoints, 4);
 			Vector2 loc = new Vector2(centerX, centerY);
@@ -623,14 +645,13 @@ class ClickListener implements MouseListener
 			System.out.println("Click added @ : <" + centerX + ", " + centerY);
 
 			ExampleGame.world.addBodyToWorld(b1);
-		}
-		else if (arg0.getButton() == MouseEvent.BUTTON3 && arg0.isShiftDown())
+		} else if (arg0.getButton() == MouseEvent.BUTTON3 && arg0.isShiftDown())
 		{
 			int centerX = arg0.getX();
 			int centerY = arg0.getY();
 
-			int[] xpoints = {-10, 0, 10, 10, 0, -10};
-			int[] ypoints = {-10, -20, -10, 10, 20, 10};
+			int[] xpoints = { -10, 0, 10, 10, 0, -10 };
+			int[] ypoints = { -10, -20, -10, 10, 20, 10 };
 
 			Polygon p = new Polygon(xpoints, ypoints, 6);
 			Vector2 loc = new Vector2(centerX, centerY);
@@ -646,14 +667,13 @@ class ClickListener implements MouseListener
 			System.out.println("Click added @ : <" + centerX + ", " + centerY);
 
 			ExampleGame.world.addBodyToWorld(b1);
-		}
-		else if (arg0.getButton() == MouseEvent.BUTTON3)
+		} else if (arg0.getButton() == MouseEvent.BUTTON3)
 		{
 			int centerX = arg0.getX();
 			int centerY = arg0.getY();
 
-			int[] xpoints = {-10, 10, 10, -10};
-			int[] ypoints = {-10, -10, 10, 10};
+			int[] xpoints = { -10, 10, 10, -10 };
+			int[] ypoints = { -10, -10, 10, 10 };
 
 			Polygon p = new Polygon(xpoints, ypoints, 4);
 			Vector2 loc = new Vector2(centerX, centerY);

@@ -18,35 +18,35 @@ import com.sjsu.physics.utils.Vector2;
 public class Drag implements Force
 {
 	private float b;
-	
+
 	public void Drag()
 	{
 		b = .5f;
 	}
-	
+
 	public void Drag(float coef)
 	{
 		b = coef;
 	}
-	
+
 	public void setCoef(float coef)
 	{
 		b = coef;
 	}
-	
+
 	public float coef()
 	{
 		return b;
 	}
 
 	@Override
-	public void updateForce(RigidBody body, float t) 
+	public void updateForce(RigidBody body, float t)
 	{
 		/* Fd = -b * v */
 		Vector2 Fd = body.velocity().normalize();
 		float drag = b * Fd.magnitude();
 		Fd = Fd.multiplyBy(-drag);
-		
+
 		body.addForce(Fd);
 	}
 

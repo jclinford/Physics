@@ -9,60 +9,60 @@ import com.sjsu.physics.utils.Vector2;
  */
 public class BoundingBox
 {
-	private float hWidth;			// half height
-	private float hHeight;			// half width
-	
+	private float hWidth; // half height
+	private float hHeight; // half width
+
 	public BoundingBox(float hw, float hh)
 	{
 		hWidth = hw;
 		hHeight = hh;
 	}
-	
+
 	public float halfHeight()
 	{
 		return hHeight;
 	}
-	
+
 	public float halfWidth()
 	{
 		return hWidth;
 	}
-	
+
 	public float radius()
 	{
 		return (Math.max(hWidth, hHeight));
 	}
-	
+
 	public float bottomY(Vector2 center)
 	{
 		return center.y() + hHeight;
 	}
-	
+
 	public float topY(Vector2 center)
 	{
 		return center.y() - hHeight;
 	}
-	
+
 	public float leftX(Vector2 center)
 	{
 		return center.x() - hWidth;
 	}
-	
+
 	public float rightX(Vector2 center)
 	{
 		return center.x() + hWidth;
 	}
-	
+
 	public void setHalfHeight(float hh)
 	{
 		hHeight = hh;
 	}
-	
+
 	public void setHalfWidth(float hw)
 	{
 		hWidth = hw;
 	}
-	
+
 	@Override
 	public String toString()
 	{
