@@ -32,8 +32,8 @@ public class Globals
 	public static final int NUM_PROCESSORS = 4;
 
 	/* Quadrant to number values.. used in quadtree */
-	public static final int MAX_QUADTREE_DEPTH = 3;
-	public static final int MAX_QUADTREE_CHILDREN = 15;
+	public static final int MAX_QUADTREE_DEPTH = 2;
+	public static final int MAX_QUADTREE_CHILDREN = 50;
 	public static final int TOP_LEFT = 0;
 	public static final int TOP_RIGHT = 1;
 	public static final int BOTTOM_LEFT = 2;
