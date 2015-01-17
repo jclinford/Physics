@@ -1,6 +1,6 @@
 package com.sjsu.physics.utils;
 
-/*
+/**
  * Two dimensional vector with appropriate related functions.
  * Uses float precisision for memory conservation.
  */
@@ -126,14 +126,7 @@ public class Vector2
 	}
 
 	/**
-	 * return the projection of this vector onto line segment AB AKA the closest
-	 * point on the edge AB to this vector
-	 * 
-	 * @param a
-	 *            Vertex 1
-	 * @param b
-	 *            Vertex 2
-	 * @return The vector projection onto edge AB
+	 * Project this vector onto line segment AB
 	 */
 	public Vector2 projectPointOntoEdge(Vector2 a, Vector2 b)
 	{
@@ -169,7 +162,7 @@ public class Vector2
 		return this.distanceTo(closestPoint);
 	}
 
-	/*
+	/**
 	 * Returns the projection of this vector onto vector B (Ab = A dot
 	 * Bnormalized)
 	 */
@@ -229,7 +222,7 @@ public class Vector2
 		return new Vector2((float) Math.cos(a), (float) Math.sin(a));
 	}
 
-	/* Returns a vector with same values as this vector */
+	/* Returns a deep copy vector with same values as this vector */
 	public Vector2 getCopy()
 	{
 		Vector2 copy = new Vector2(this.x, this.y);

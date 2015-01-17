@@ -7,15 +7,17 @@ import java.util.ArrayList;
 import com.sjsu.physics.utils.Globals;
 import com.sjsu.physics.utils.Vector2;
 
+/**
+ * A polygon rigidBody. Described by a list of normals (vector2), a polygon and a location
+ */
 public class PolyBody extends RigidBody
 {
-	private Polygon polygon;
+	private Polygon polygon = new Polygon();
 	private ArrayList<Vector2> normals;
 
 	public PolyBody(Polygon p, Vector2 cen)
 	{
 		setType(BodyType.POLYGON);
-
 		setCenter(cen);
 		setPolygon(p);
 	}
@@ -23,20 +25,15 @@ public class PolyBody extends RigidBody
 	public PolyBody(Polygon p, float x, float y)
 	{
 		setType(BodyType.POLYGON);
-
 		setCenter(x, y);
 		setPolygon(p);
 	}
 
-	/**
-	 * Polygon's vertices must be listed in counterclockwise order
-	 * 
-	 * @param p
-	 *            The polygon that we will set to
-	 */
+	/** Polygon's vertices must be listed in counterclockwise order */
 	public void setPolygon(Polygon p)
 	{
 		float edgeCount = 0;
+
 		// check that vertices are counterclockwise
 		for (int i = 0; i < p.npoints; i++)
 		{
@@ -44,34 +41,38 @@ public class PolyBody extends RigidBody
 			Vector2 v2 = new Vector2(p.xpoints[(i + 1) % p.npoints], p.ypoints[(i + 1) % p.npoints]);
 
 			// sum over edges (x2 - x1) * (y2 + y1)
-			System.out.println("v1: " + v1 + "   v2:" + v2 + "    edgeCount: " + edgeCount);
 			edgeCount += (v2.x() - v1.x()) * (v2.y() + v1.y());
 		}
 
-		// if edgecount is negative then we are counterclockwise
+		// if edgeCount is negative then we are counterclockwise
 		if (edgeCount > 0)
-			System.out.println("WARNING NOT COUNTER CLOCKWISE: " + polygon);
+			throw new RuntimeException("Polygon is not counterclockwise");
 
-		polygon = p;
+		polygon.npoints = p.npoints;
+		polygon.xpoints = p.xpoints;
+		polygon.ypoints = p.ypoints;
+		polygon.invalidate();
 
-		bounds.setHalfHeight(p.getBounds().height / 2);
-		bounds.setHalfWidth(p.getBounds().width / 2);
-
+		calcBounds();
 		calcNormals();
 		calculateMoment();
 	}
 
-	/* Calculate all the normals for this body's Polygon */
+	/** Calculate the bounds based on our body's polygon */
+	private void calcBounds()
+	{
+		bounds.setHalfHeight(polygon.getBounds().height / 2);
+		bounds.setHalfWidth(polygon.getBounds().width / 2);
+	}
+
+	/** Calculate all the normals for this body's Polygon */
 	private void calcNormals()
 	{
 		if (polygon == null)
-		{
-			System.out.println("This body doesn't have a polygon associated with it.");
-			return;
-		}
+			throw new RuntimeException("Polygon not associated with this PolyBody");
+
 
 		normals = new ArrayList<Vector2>(polygon.npoints + 1);
-
 		for (int i = 0; i < polygon.npoints; i++)
 		{
 			int j = (i + 1) % polygon.npoints;
@@ -85,10 +86,10 @@ public class PolyBody extends RigidBody
 		}
 
 		if (normals.size() != polygon.npoints)
-			System.out.println("ERROR!!");
+			throw new ArrayIndexOutOfBoundsException("Normals.size != polygon.npoints");
 	}
 
-	/* checks if a point is within this polygon */
+	/** Checks if a point is within this polygon */
 	public boolean contains(Vector2 point)
 	{
 		point = this.state().TransformIntoSpaceOf(point);
@@ -98,31 +99,28 @@ public class PolyBody extends RigidBody
 		{
 			Vector2 dist = point.subtractBy(polyVertices.get(i));
 			if (dist.dot(polyVertices.get(i)) > 0)
-			{
-				// seperating axis found
-				return false;
-			}
+				return false;	// separating axis found
 		}
 		return true;
 	}
 
-	/* Add a force at the point which is given in bodyCoords */
+	/** Add a force at the point which is given in bodyCoords */
 	public void addForceAtBodyPoint(Vector2 force, Vector2 point)
 	{
 		addForceAtPoint(force, point.addTo(center()));
 	}
 
-	/* Add a force at the point which is given in WorldCoords */
+	/** Add a force at the point which is given in worldCoords */
 	public void addForceAtPoint(Vector2 force, Vector2 point)
 	{
 		Vector2 pt = point;
 		pt = pt.subtractBy(center());
 
 		this.addForce(force);
-		this.addTorque(point.dot(force));
+		this.addTorque(pt.dot(force));
 	}
 
-	/* return vertices in body coords */
+	/** Return vertices in bodyCoords */
 	public ArrayList<Vector2> vertices()
 	{
 		ArrayList<Vector2> polyPoints = new ArrayList<Vector2>(polygon.npoints + 1);
@@ -136,10 +134,7 @@ public class PolyBody extends RigidBody
 		return polyPoints;
 	}
 
-	/*
-	 * return vertices coords in world coords (add center and rotate by
-	 * orientation)
-	 */
+	/** Return vertices coords in worldCoords (add center and rotate by orientation) */
 	public ArrayList<Vector2> verticesWorld()
 	{
 		ArrayList<Vector2> polyPoints = new ArrayList<Vector2>(polygon.npoints + 1);
@@ -155,20 +150,21 @@ public class PolyBody extends RigidBody
 		return polyPoints;
 	}
 
+	/** Number of vertices of our polygon */
 	public int numVertices()
 	{
-		return polygon.npoints;
+		if (polygon != null)
+			return polygon.npoints;
+		return 0;
 	}
 
-	/** Return the polygon in body coords */
+	/** Return the polygon in bodyCoords */
 	public Polygon polygon()
 	{
 		return polygon;
 	}
 
-	/**
-	 * Return the polygon in world coords (add center and rotate by orientation)
-	 */
+	/** Return the polygon in world coords (add center and rotate by orientation) */
 	public Polygon polygonWorld()
 	{
 		int[] xpointsWorld = new int[polygon.npoints];
@@ -189,13 +185,7 @@ public class PolyBody extends RigidBody
 		return p;
 	}
 
-	/**
-	 * Rotate the vertices about the center by angle rad
-	 * 
-	 * @param rad
-	 *            Rotate by rad radians
-	 * @return The polygon rotated
-	 */
+	/** Rotate the vertices about the center by angle rad */
 	public Polygon rotatePolygon(float rad)
 	{
 		float s = (float) Math.sin(rad);
@@ -217,23 +207,13 @@ public class PolyBody extends RigidBody
 		return p;
 	}
 
-	/**
-	 * Returns the normal for the edge between vertex i and vertex i+1
-	 * 
-	 * @param i
-	 *            Index of the normal
-	 */
+	/** Returns the normal for the edge between vertex i and vertex i+1 */
 	public Vector2 normal(int i)
 	{
 		return normals.get(i);
 	}
 
-	/**
-	 * Returns the normal in world Space
-	 * 
-	 * @param i
-	 *            Index of the normal
-	 */
+	/** Returns the normal in worldCoords */
 	public Vector2 normalWorld(int i)
 	{
 		Vector2 normal = normals.get(i);

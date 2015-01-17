@@ -3,12 +3,15 @@ package com.sjsu.physics.shapes;
 import com.sjsu.physics.utils.Globals;
 import com.sjsu.physics.utils.Vector2;
 
+
+/**
+ * Specific instance of a rigidbody
+ * A perfect circle, completely described by radius and location
+ */
 public class Circle extends RigidBody
 {
 	public Circle()
 	{
-		// All objects have been instantiated to zero/defaults in RigidBody
-
 		setType(BodyType.CIRCLE);
 		setRadius(Globals.DEFAULT_CIRCLE_RADIUS);
 	}

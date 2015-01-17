@@ -1,8 +1,6 @@
 package com.sjsu.physics.collisiondetection;
 
 import java.awt.Rectangle;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
 import com.sjsu.physics.shapes.PolyBody;
@@ -11,10 +9,10 @@ import com.sjsu.physics.shapes.RigidBody.BodyType;
 import com.sjsu.physics.utils.Globals;
 import com.sjsu.physics.utils.Vector2;
 
-//TODO currently just a point-quadtree.. need to account for geometries and check if the rigidBody is overlapping two or more quadrants.. if so add it to the parent node
-//Continue physics book on pg 257 (280/481)
+//TODO currently just a point-quadtree.. need to account for geometries and check if the rigidBody
+// is overlapping two or more quadrants.. if so add it to the parent node
 
-/* 
+/**
  * A node of a quad-tree, built for parallel processing.
  * Similar to a Binary tree, but with four children.
  * 
@@ -33,20 +31,20 @@ import com.sjsu.physics.utils.Vector2;
  */
 
 public class QuadTreeNode 
-{        
+{
         private Rectangle bounds;
         private int depth;
         
-        private ArrayList<RigidBody> myBodies;                        // Bodies that belong to this node
+        private ArrayList<RigidBody> myBodies;
         private QuadTreeNode parent;
-        private QuadTreeNode[] children;                                // Children nodes of this node
+        private QuadTreeNode[] children;
         
         public QuadTreeNode()
         {
                 // Use init method for recursive initiation
         }
         
-        /* Recursively init the quadtree */
+        /** Recursively init the quadtree */
         public QuadTreeNode init(QuadTreeNode par, Rectangle grid, int d)
         {
                 bounds = grid;
@@ -76,13 +74,13 @@ public class QuadTreeNode
                 int bXbwh = bX + bwh;
                 int bYbhh = bY + bhh;
                 
-                /* Rect's for new node bounds */
+                // Rect's for new node bounds
                 Rectangle topLeftBounds = new Rectangle(bX, bY, bwh, bhh);
                 Rectangle topRightBounds = new Rectangle(bXbwh, bY, bwh, bhh);
                 Rectangle bottomLeftBounds = new Rectangle(bX, bYbhh, bwh, bhh);
                 Rectangle bottomRightBounds = new Rectangle(bXbwh, bYbhh, bwh, bhh);
                 
-                /* Create the new Nodes */
+                // Create the new Nodes
                 children[Globals.TOP_LEFT] = new QuadTreeNode().init(this, topLeftBounds, depth + 1);
                 children[Globals.TOP_RIGHT] = new QuadTreeNode().init(this, topRightBounds, depth + 1);
                 children[Globals.BOTTOM_RIGHT] = new QuadTreeNode().init(this, bottomRightBounds, depth + 1);
@@ -91,9 +89,9 @@ public class QuadTreeNode
 
         
         
-        /* Test whether a rigidBody is fully contained inside this node's bounds
+        /** Test whether a rigidBody is fully contained inside this node's bounds
          * if the node can fully contain the body then it returns true, else false 
-         * TODO can I be more efficient here??*/
+         * TODO make this more efficient */
         public boolean contains(RigidBody body)
         {        
                 // check used for circles
@@ -124,11 +122,10 @@ public class QuadTreeNode
                         }
                         return true;
                 }
-                
                 return false;
         }
         
-        /* Retrieve the node that the rigidBody belongs to. If not this node, search myBodies */
+        /** Retrieve the node that the rigidBody belongs to. If not this node, search myBodies */
         public ArrayList<RigidBody> retrieveNode(RigidBody body)
         {
                 // If we have subnodes, find the index
@@ -142,17 +139,13 @@ public class QuadTreeNode
                 return myBodies;
         }
         
-        /** Retrieve all potential contacts (the node the body is in and all parents 
-         * 
-         * @param body The body that we are looking for contacts for
-         * @param potentialContacts An arraylist passed in that we will add our bodies to if we are a parent
-         */
+        /** Retrieve all potential contacts (the node the body is in and all parents */
         public void retrieveContacts(ArrayList<RigidBody> potentialContacts, RigidBody body)
         {
                 int index = findIndex(body);
         }
         
-        /* Insert a body to our node. If it's full split our node */
+        /** Insert a body to our node. If it's full split our node */
         public void insert(RigidBody body)
         {
                 boolean added = true;
@@ -209,22 +202,17 @@ public class QuadTreeNode
                 return index;
         }
         
-        /* Returns whether this node is a leaf or not */
+        /** Returns whether this node is a leaf or not */
         public boolean isLeaf()
         {
                 // If we do not have children allocated, then we are a leaf
                 if (children[0] == null || children[1] == null || children[2] == null || children[3] == null)
                         return true;
                 
-//                // If we have children allocated, but all of our children don't have bodies then we are a leaf
-//                if (children[0].bodies().size() < 1 && children[1].bodies().size() < 1 && 
-//                                children[2].bodies().size() < 1 && children[3].bodies().size() < 1)
-//                        return true;
-                
                 return false;
         }
         
-        /* Clear all bodies this this node and subnodes.. does not unallocate the node memory
+        /** Clear all bodies this this node and subnodes.. does not unallocate the node memory
          * nor does it unallocate or mess with the init'd tree structure */
         public void clearObjects()
         {
@@ -241,19 +229,19 @@ public class QuadTreeNode
         
         
         
-        /* Return our children / subnodes */
+        /** Return our children / subnodes */
         public QuadTreeNode[] children()
         {
                 return children;
         }
         
-        /* Return the bounds that this Node occupies */
+        /** Return the bounds that this Node occupies */
         public Rectangle bounds()
         {
                 return bounds;
         }
         
-        /* Return only myBodies (objects that reside fully in the bounds of the node) */
+        /** Return only myBodies (objects that reside fully in the bounds of the node) */
         public ArrayList<RigidBody> bodies()
         {
                 return myBodies;

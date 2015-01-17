@@ -28,6 +28,11 @@ import com.sjsu.physics.shapes.RigidBody.BodyType;
 import com.sjsu.physics.utils.Globals;
 import com.sjsu.physics.utils.Vector2;
 
+/**
+ * Creates some examples to showcase Physics engine (not actually part of the engine)
+ *
+ * TODO need to clean this up, bad class design and lots of quick examples below
+ */
 public class ExampleGame 
 {
 	private JFrame mainFrame;
@@ -59,13 +64,13 @@ public class ExampleGame
 
 		//makeWalls();
 		//makeBox();
-		makeFixedBox();
-		makeRandomBodies();
+		//makeFixedBox();
+		//makeRandomBodies();
 		//makeHeadOn();
 		//makeOffsetHeadOn();
 		//makePolygons();
 		//makeHeadOnPolygons();
-		//makeFloor();
+		makeFloor();
 		//makeRotation();
 		//makeNewtonCradle();
 		//makeRestitution();
@@ -87,7 +92,7 @@ public class ExampleGame
 	}
 
 
-	/* create a box of bodies to act as a wall-bounding box fixed */
+	/** Create a box of bodies to act as a wall-bounding box fixed */
 	public void makeFixedBox()
 	{
 		int centerX = Globals.MAX_GAME_WIDTH / 2;
@@ -139,7 +144,7 @@ public class ExampleGame
 
 	}
 
-	/* create a box of bodies to act as a wall-bounding box */
+	/** Create a box of bodies to act as a wall-bounding box */
 	public void makeBox()
 	{
 		int centerX = Globals.MAX_GAME_WIDTH / 2;
@@ -154,8 +159,6 @@ public class ExampleGame
 
 			Circle b1 = new Circle(xLoc, yLoc1, Globals.DEFAULT_CIRCLE_RADIUS);
 			Circle b2 = new Circle(xLoc, yLoc2, Globals.DEFAULT_CIRCLE_RADIUS);
-			//b1.setMass(Constants.INFINITY);
-			//b2.setMass(Constants.INFINITY);
 			b1.setMass(MAX_MASS);
 			b2.setMass(MAX_MASS);
 
@@ -172,8 +175,6 @@ public class ExampleGame
 
 			Circle b1 = new Circle(xLoc1, yLoc, Globals.DEFAULT_CIRCLE_RADIUS);
 			Circle b2 = new Circle(xLoc2, yLoc, Globals.DEFAULT_CIRCLE_RADIUS);
-			//b1.setMass(Constants.INFINITY);
-			//b2.setMass(Constants.INFINITY);
 			b1.setMass(20);
 			b2.setMass(20);
 
@@ -182,7 +183,7 @@ public class ExampleGame
 		}
 	}
 
-	/* Make some polygons */
+	/** Make some polygons */
 	public void makePolygons()
 	{
 		int[] xpoints = {-5, -5, 5, 5};
@@ -203,7 +204,7 @@ public class ExampleGame
 		world.addBodyToWorld(b2);
 	}
 
-	/* 2d headon polygon collision */
+	/** 2d headon polygon collision */
 	public void makeHeadOnPolygons()
 	{
 		int[] xpoints1 = {0, 10, 0, -10};
@@ -227,7 +228,7 @@ public class ExampleGame
 		world.addBodyToWorld(b2);
 	}
 
-	/* a floor polygon */
+	/** A floor polygon */
 	public void makeFloor()
 	{
 		int[] xpoints1 = {-200, 200, 200, -200};
@@ -262,7 +263,7 @@ public class ExampleGame
 		world.addBodyToWorld(b4);
 	}
 	
-	/* a floor polygon */
+	/** A floor polygon */
 	public void makeRotation()
 	{
 		int[] xpoints1 = {-100, 100, 100, -100};
@@ -494,15 +495,9 @@ public class ExampleGame
 		ExampleGame.world.addBodyToWorld(c3);
 		ExampleGame.world.addBodyToWorld(c4);
 		ExampleGame.world.addBodyToWorld(c5);
-		
-//		Circle c1 = new Circle(new Vector2(110, Globals.MAX_GAME_WIDTH - 650), 5 * Globals.DEFAULT_CIRCLE_RADIUS);
-//		c1.setVelocity(new Vector2(35, 0));
-//		c1.setAcceleration(new Vector2(0, Globals.DEFAULT_GRAVITY));
-//		c1.setMass(5);
-//		world.addBodyToWorld(c1);
 	}
 
-	/* Make some random circles to bounce around */
+	/** Make some random circles to bounce around */
 	public void makeRandomBodies()
 	{	
 		//RANDOM BODIES
@@ -597,35 +592,11 @@ class DrawingPanel extends JPanel
 
 		if (Globals.DRAW_QUADTREE)
 			drawQuadTree(World.getTreeRoot(), g2);
-		
-//		for (int i = 0; i < Globals.NUM_PROCESSORS; i++)
-//		{
-//			drawContacts(World.getThread(i).contacts, g2);
-//		}
 
-
-		// Below (framesInLastSecond) shows the FPS of the main thread
-		//		long currentTime = System.currentTimeMillis();
-		//		if (currentTime > nextSecond) 
-		//		{
-		//			nextSecond += 1000;
-		//			framesInLastSecond = framesInCurrentSecond;
-		//			framesInCurrentSecond = 0;
-		//		}
-		//		framesInCurrentSecond++;
-		//
-		//		g2.drawString(framesInLastSecond + " FPS: ", 75, 75);
-
-		// Show fps of each thread, remake back to java coordinates so this displays correctly
-//		g2.setTransform(at);
-//		for (int i = 0; i < Globals.NUM_PROCESSORS; i++)
-//		{
-//			g2.drawString("Elapsed time for 1 loop: " + Math.round(World.getThread(i).timeStep * 100), 75, 75 + (i * 15));
-//		}
 		g2.drawString("NumBodies: " + bodies.size(), 75, 55);	
 	}
 	
-	// Get the color based on process number
+	/** Get the color based on process number */
 	private Color getColor(RigidBody a)
 	{
 		int processId = a.process();
@@ -664,8 +635,7 @@ class DrawingPanel extends JPanel
 			float fromy = contacts.get(i).contactPoint().y();
 			float tox = normal.x() + fromx;
 			float toy = normal.y() + fromy;
-			
-//			System.out.println(" V1: " + b.verticesWorld().get(i) + "   v2: " + b.verticesWorld().get( (i + 1) % b.numVertices()) + "   normal: " + normal);
+
 			Line2D.Float line = new Line2D.Float(fromx, fromy, tox, toy);
 			g2.draw(line);
 			
@@ -685,9 +655,6 @@ class DrawingPanel extends JPanel
 
 		// Draw the parent node
 		g2.drawRect(n.bounds().x, n.bounds().y, n.bounds().width, n.bounds().height);
-
-//		if (n.bodies().size() > 0)
-//			System.out.println(" Depth: " + n.depth() + "   numbodies: " + n.bodies().size());
 		
 		// draw all children of parent node
 		for (int i = 0; i < 4; i++)
@@ -708,8 +675,7 @@ class DrawingPanel extends JPanel
 			float fromy = b.center().y();
 			float tox = normal.x() + fromx;
 			float toy = normal.y() + fromy;
-			
-//			System.out.println(" V1: " + b.verticesWorld().get(i) + "   v2: " + b.verticesWorld().get( (i + 1) % b.numVertices()) + "   normal: " + normal);
+
 			Line2D.Float line = new Line2D.Float(fromx, fromy, tox, toy);
 			float radius = 5;
 			Ellipse2D.Float center = new Ellipse2D.Float(b.center().x() - radius, 
@@ -723,7 +689,7 @@ class DrawingPanel extends JPanel
 }
 
 
-/* Timer class to take one step every x seconds */
+/** Timer class to take one step every x seconds */
 class PhysicsStep extends TimerTask 
 {
 	private World world;
@@ -741,9 +707,7 @@ class PhysicsStep extends TimerTask
 	@Override
 	public void run() 
 	{
-		//System.out.println("Step");
 		drawingPanel.repaint();
-//		makeBody();
 	}
 	
 	public void makeBody()
@@ -777,99 +741,41 @@ class PhysicsStep extends TimerTask
 
 class ClickListener implements MouseListener
 {
-
-	@Override
-	public void mouseClicked(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mousePressed(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
 	@Override
 	public void mouseReleased(MouseEvent arg0) 
 	{
+		RigidBody body = null;
+		Polygon poly = null;
+		Vector2 loc = new Vector2(arg0.getX(), arg0.getY());
+
 		if (arg0.isShiftDown() && arg0.getButton() == MouseEvent.BUTTON1)
 		{
-			int centerX = arg0.getX();
-			int centerY = arg0.getY();
-			
 			int[] xpoints = {-50, 50, 50, -50};
 			int[] ypoints = {-10, -10, 10, 10};
 
-			Polygon p = new Polygon(xpoints, ypoints, 4);
-			Vector2 loc = new Vector2(centerX, centerY);
-
-			PolyBody b1 = new PolyBody(p, loc);
-			b1.setMass(100);
-			b1.rotateBy(1);
-
-			Vector2 a = new Vector2(0, Globals.DEFAULT_GRAVITY);
-			b1.setAcceleration(a);
-
-			System.out.println("Click added @ : <" + centerX + ", " + centerY);
-
-			ExampleGame.world.addBodyToWorld(b1);
+			poly = new Polygon(xpoints, ypoints, 4);
+			body = new PolyBody(poly, loc);
+			body.setMass(100);
+			body.rotateBy(1);
 		}
 		else if (arg0.getButton() == MouseEvent.BUTTON1)
 		{
-			int centerX = arg0.getX();
-			int centerY = arg0.getY();
-
 			int[] xpoints = {-10, 10, 10, -10};
 			int[] ypoints = {-10, -10, 10, 10};
 
-			Polygon p = new Polygon(xpoints, ypoints, 4);
-			Vector2 loc = new Vector2(centerX, centerY);
-
-			PolyBody b1 = new PolyBody(p, loc);
-			b1.setMass(10);
-
-			Vector2 a = new Vector2(0, Globals.DEFAULT_GRAVITY);
-			b1.setAcceleration(a);
-
-			System.out.println("Click added @ : <" + centerX + ", " + centerY);
-
-			ExampleGame.world.addBodyToWorld(b1);
+			poly = new Polygon(xpoints, ypoints, 4);
+			body = new PolyBody(poly, loc);
+			body.setMass(10);
 		}
 		else if (arg0.getButton() == MouseEvent.BUTTON3 && arg0.isShiftDown())
 		{
-			int centerX = arg0.getX();
-			int centerY = arg0.getY();
-
 			int[] xpoints = {-10, 0, 10, 10, 0, -10};
 			int[] ypoints = {-10, -20, -10, 10, 20, 10};
 
-			Polygon p = new Polygon(xpoints, ypoints, 6);
-			Vector2 loc = new Vector2(centerX, centerY);
-
-			PolyBody b1 = new PolyBody(p, loc);
-			b1.setMass(20);
-
-			Vector2 a = new Vector2(0, Globals.DEFAULT_GRAVITY);
-			Vector2 v = new Vector2(10, 0);
-			b1.setVelocity(v);
-			b1.setAcceleration(a);
-
-			System.out.println("Click added @ : <" + centerX + ", " + centerY);
-
-			ExampleGame.world.addBodyToWorld(b1);
+			poly = new Polygon(xpoints, ypoints, 6);
+			body = new PolyBody(poly, loc);
+			body.setMass(20);
+			body.setVelocity(10, 0);
 		}
 		else if (arg0.getButton() == MouseEvent.BUTTON3)
 		{
@@ -879,20 +785,27 @@ class ClickListener implements MouseListener
 			int[] xpoints = {-10, 10, 10, -10};
 			int[] ypoints = {-10, -10, 10, 10};
 
-			Polygon p = new Polygon(xpoints, ypoints, 4);
-			Vector2 loc = new Vector2(centerX, centerY);
+			poly = new Polygon(xpoints, ypoints, 4);
+			body = new Circle(loc, 10);
+			body.setMass(5);
+			body.setVelocity(40, 0);
+		}
 
-			Circle b1 = new Circle(loc, 10);
-			b1.setMass(5);
-
-			Vector2 a = new Vector2(0, Globals.DEFAULT_GRAVITY);
-			b1.setAcceleration(a);
-			b1.setVelocity(40, 0);
-
-			System.out.println("Click added @ : <" + centerX + ", " + centerY);
-
-			ExampleGame.world.addBodyToWorld(b1);
+		if (body != null)
+		{
+			body.setAcceleration(new Vector2(0, Globals.DEFAULT_GRAVITY));
+			ExampleGame.world.addBodyToWorld(body);
 		}
 	}
+
+
+	@Override
+	public void mouseClicked(MouseEvent arg0) {}
+	@Override
+	public void mouseEntered(MouseEvent arg0) {}
+	@Override
+	public void mouseExited(MouseEvent arg0) {}
+	@Override
+	public void mousePressed(MouseEvent arg0) {}
 
 }

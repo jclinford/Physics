@@ -9,20 +9,20 @@ import com.sjsu.physics.shapes.RigidBody;
 import com.sjsu.physics.utils.Globals;
 import com.sjsu.physics.utils.Vector2;
 
-/* A single thread to perform core physics routines in parallel */
+/** A single thread to perform core physics routines in parallel */
 public class PhysicsThread extends Thread
 {
-        private int pNum;                                                // Specific processor number
+        private int pNum;
         
-        private QuadTreeNode myTreeRoot;                // Quadtree associated with this processor;
-        private ArrayList<RigidBody> myBodies;        // Bodies that belong to this thread
-        private LinkedList<RigidBody> newBodies;// New bodies that were added in between a game loop
-        public ArrayList<Contact> contacts;                // A list of contacts that need to be resolved
+        private QuadTreeNode myTreeRoot;
+        private ArrayList<RigidBody> myBodies;
+        private LinkedList<RigidBody> newBodies;
+        public ArrayList<Contact> contacts;
         
-        private ContactSolver contactSolver;        // Solves the contacts for this thread
+        private ContactSolver contactSolver;
         
-        private World myWorld;                                        // The world the controls this thread
-        private boolean isProcessing;                        // Flag to denote whether this thread is currently processing
+        private World myWorld;
+        private boolean isProcessing;
         
         public PhysicsThread(World w, int p, QuadTreeNode root)
         {
@@ -36,9 +36,7 @@ public class PhysicsThread extends Thread
                 
                 contactSolver = new ContactSolver(Globals.CONTACT_SOLVER_DEFAULT_ITERATIONS);
         }
-        
-        // We are no longer overiding this thread's ride function.. make sure that is okay for parallel processing. 
-        // Must I call run in order for threads to run concurrently??
+
         public void run()
         {
                 long timeStep = 0;
@@ -48,12 +46,12 @@ public class PhysicsThread extends Thread
                 {                        
                         // Get the time that has passed
                         long startTime = System.nanoTime();
-//                        System.out.println("Pnum: " + pNum + "   CurTime: " + startTime + "  timeStep: " + timeStep);
                         
                         // We need to remove all bodies from our tree and reinsert
+                        // This ensures bodies that have moved are in correct places in tree
+                        // Reinsert is much easier than updating on the fly and doesn't add too much time
                         clearTree();
                         insertBodiesToTree();
-//                        System.out.println("Pnum: " + pNum + "  bodies: " + myBodies.size());
                         
                         // Take a step forward in time
                         integrate(timeStep * Globals.NANOSEC_TO_SECONDS * 5);
@@ -70,20 +68,11 @@ public class PhysicsThread extends Thread
                         // workaround to ensure that we are always moving forward (in case of large # bodies), but never
                         // moving forward too fast (in the case of small # bodies)
                         timeStep = (System.nanoTime() - startTime);
-//                        if (timeStep > Globals.MAX_TIME_STEP)
-//                                timeStep = Globals.MAX_TIME_STEP;
-//                        else if (timeStep < Globals.MIN_TIME_STEP)
-//                                timeStep = Globals.MIN_TIME_STEP;
-                        
-//                        System.out.println("Finished while loop pnum: " + pNum + " timestep: " + timeStep);
                 }
         }
         
-        /** Integrate all of the bodies that belong to this processor forward by time t.
-         * 
-         * @param dt Time to step forward
-         */
-        public void integrate(float dt)
+        /** Integrate all of the bodies that belong to this processor forward by time t. */
+        private void integrate(float dt)
         {
                 for (int i = 0; i < myBodies.size(); i++)
                 {
@@ -102,12 +91,11 @@ public class PhysicsThread extends Thread
         }
         
         /** Check for collisions and generate contacts if there is a collision */
-        public void generateContacts()
+        private void generateContacts()
         {
                 ArrayList<RigidBody> possibleCollisions;
-                Contact contact = null;
                 
-                /* First check for collisions against all our own bodies */
+                // First check for collisions against all our own bodies
                 for (int i = 0; i < myBodies.size(); i++)
                 {
                         // TODO this is probably not the best way.. this will call retrieve a lot of times
@@ -131,7 +119,8 @@ public class PhysicsThread extends Thread
                 
                 
                 /* Next we need to check against any bodies that are residing in the world tree node, parent
-                 * to this physics root node. Bodies will be in this if they are overlapping two physics boundaries */
+                 * to this physics root node. Bodies will be in this if they are overlapping two physics boundaries
+                 * TODO bug seems to be present here, sometimes not catching overlapping bodies*/
                 possibleCollisions = myWorld.overlappingBodies();
                 if (possibleCollisions.size() < 1)
                         return;
@@ -149,14 +138,14 @@ public class PhysicsThread extends Thread
                 }
         }
         
-        /* Resolve any contacts in our list. To be called after generateContacts */
-        public void resolveContacts(float dt)
+        /** Resolve any contacts in our list. To be called after generateContacts */
+        private void resolveContacts(float dt)
         {
                 if (contacts.size() > 0)
                         contactSolver.resolveContacts(contacts, dt);
         }
         
-        /* Called by world. Inserts a rigid body into a waiting list, will be added to 
+        /** Called by world. Inserts a rigid body into a waiting list, will be added to
          * the full list at the end of the loop */
         protected void insertBody(RigidBody b)
         {
@@ -164,7 +153,7 @@ public class PhysicsThread extends Thread
                 newBodies.add(b);
         }
         
-        /* Place newly added bodies into the arrayList */
+        /** Place newly added bodies into the arrayList */
         private void refreshBodyList()
         {
                 while (newBodies.size() > 0)
@@ -174,7 +163,7 @@ public class PhysicsThread extends Thread
                 }
         }
         
-        /* Insert all of myBodies into the processor's tree.. should happen every loop after clear */
+        /** Insert all of myBodies into the processor's tree.. should happen every loop after clear */
         private void insertBodiesToTree()
         {
                 for (int i = 0; i < myBodies.size(); i++)
@@ -188,19 +177,19 @@ public class PhysicsThread extends Thread
                 myBodies.remove(b);
         }
         
-        /* Clear all bodies from the tree.. called by world and should happen every loop */
+        /** Clear all bodies from the tree.. called by world and should happen every loop */
         private void clearTree()
         {
                 myTreeRoot.clearObjects();
         }
         
-        /* Clear all bodies from this processor */
+        /** Clear all bodies from this processor */
         private void clearBodies()
         {
                 myBodies.clear();
         }
         
-        /* return all bodies that belong to this thread */
+        /** Return all bodies that belong to this thread */
         public ArrayList<RigidBody> bodies()
         {
                 return myBodies;

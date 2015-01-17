@@ -2,10 +2,10 @@ package com.sjsu.physics.shapes;
 
 import com.sjsu.physics.utils.Vector2;
 
-/* 
- * A circle that can be used for rough collision detection.
- * We assume that this circle will fully enclose the rigid body that it
- * is attached to. That is all points of the rigidBody will be within this boundingCircle.
+/**
+ * A BoundingBox used for collision detection.
+ * The bounding box needs to fully enclose all points of the rigidBody it describes
+ * Greatly simplifies rough collision detection
  */
 public class BoundingBox
 {
